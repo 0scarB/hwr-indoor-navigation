@@ -2,6 +2,7 @@
 
 !project/
 !adeept_picar-b/
+!docs/
 !.envrc
 !.python-version
 !compile-requirements.sh
@@ -11,6 +12,12 @@
 !dev-requirements.in
 !dev-requirements.txt
 !setup-dev.sh
+!setup.cfg
+!setup.py
+!package.xml
+!resource
+!test
+!hwr_indoor_navigation
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
