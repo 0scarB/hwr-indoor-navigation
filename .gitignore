@@ -2,6 +2,15 @@
 
 !project/
 !adeept_picar-b/
+!.envrc
+!.python-version
+!compile-requirements.sh
+!compile-dev-requirements.sh
+!requirements.in
+!requirements.txt
+!dev-requirements.in
+!dev-requirements.txt
+!setup-dev.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
