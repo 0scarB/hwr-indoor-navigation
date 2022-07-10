@@ -4,13 +4,12 @@ import sys
 
 sys.path.append(os.path.dirname(__file__))
 
-import event
-from app import App
-from config import Config
+
+import app
 
 
-app = App(Config(
-    event=event.Config(log_level=logging.DEBUG)
+app = app.App(app.Config(
+    event=app.event.Config(log_level=logging.DEBUG)
 ))
 
 app.run()

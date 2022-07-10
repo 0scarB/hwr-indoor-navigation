@@ -1,0 +1,3 @@
+class SetRobotSeedPublisher:
+    """TODO"""
+    pass

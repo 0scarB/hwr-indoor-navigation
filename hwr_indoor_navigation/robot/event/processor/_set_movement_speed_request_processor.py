@@ -3,17 +3,17 @@ from __future__ import annotations
 from typing import Tuple
 
 from event import RequestMetadata
-from . import (
+from robot.event import (
     RequestProcessor,
     EventType,
     SetMovementSpeedRequestValue,
     SetMovementSpeedSuccessValue,
     SetMovementSpeedFailureValue,
 )
-from .. import ForwardBackwardMotor
+from robot import ForwardBackwardMotor
 
 
-class SetMovementSpeedRequestProcessor(
+class SetMovementSpeedProcessor(
     RequestProcessor[
         SetMovementSpeedRequestValue,
         EventType.SET_MOVEMENT_SPEED_SUCCESS,

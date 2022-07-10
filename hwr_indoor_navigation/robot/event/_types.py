@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Union
 
-from event import Type as _GlobalEventType
+from app.event import Type as _AppEventType
 
 
 class _LocalEventType(str, Enum):
@@ -10,4 +10,4 @@ class _LocalEventType(str, Enum):
     CAPTURED_LIDAR_DATA = "capture_lidar_data"
 
 
-EventType = Union[_GlobalEventType, _LocalEventType]
+EventType = Union[_AppEventType, _LocalEventType]

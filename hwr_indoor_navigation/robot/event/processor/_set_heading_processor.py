@@ -3,17 +3,17 @@ from __future__ import annotations
 from typing import Tuple
 
 from event import RequestMetadata
-from . import (
+from robot.event import (
     RequestProcessor,
     EventType,
     SetHeadingRequestValue,
     SetHeadingSuccessValue,
     SetHeadingFailureValue,
 )
-from .. import SteeringMotor
+from robot import SteeringMotor
 
 
-class SetMovementSpeedRequestProcessor(
+class SetHeadingProcessor(
     RequestProcessor[
         SetHeadingRequestValue,
         EventType.SET_HEADING_SUCCESS,

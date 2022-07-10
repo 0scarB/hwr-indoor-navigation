@@ -1,5 +1,3 @@
-import time
-
 import event
 from config import Config
 
@@ -40,6 +38,8 @@ class App:
         )
 
         startup_publisher.publish()
+
+        # Robot().startup()
 
     def _shutdown(self) -> None:
         self._shutdown_publisher.publish()

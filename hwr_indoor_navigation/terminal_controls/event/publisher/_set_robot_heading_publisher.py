@@ -1,0 +1,3 @@
+class SetRobotHeadingPublisher:
+    """TODO"""
+    pass
