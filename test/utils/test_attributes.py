@@ -1,7 +1,7 @@
 import pytest
 
-from hwr_indoor_navigation.utils.attributes import NumberBetweenBounds
-from hwr_indoor_navigation import errors
+from attribute import NumberBetweenBounds
+from hwr_indoor_navigation import error
 
 
 class TestNumberBetweenBounds:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Tuple, Set, List
 
-from .. import errors
+from hwr_indoor_navigation import error
 
 
 _TConversionCallback = Callable[[float], float]
@@ -158,14 +158,14 @@ class Converter:
         return convert(value)
 
 
-globalConverter = Converter()
+global_converter = Converter()
 
 
 @dataclass
 class UnitValue:
     value: float
     unit: str
-    converter: Converter = globalConverter
+    converter: Converter = global_converter
 
     def to(self, unit: str) -> UnitValue:
         return self.converter.convert(self, unit)

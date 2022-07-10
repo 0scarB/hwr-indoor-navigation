@@ -1,8 +1,6 @@
 import math
 
-import pytest
-
-from hwr_indoor_navigation.utils.units import Converter, UnitValue
+from unit import Converter, UnitValue
 
 
 def test_scenario_degrees_radians_tau():

@@ -1,7 +1,7 @@
 import functools
 from typing import Any, cast, Protocol, Type, TypeVar
 
-from .. import errors
+from hwr_indoor_navigation import error
 
 
 class _AttributeSetterDeleter(Protocol):

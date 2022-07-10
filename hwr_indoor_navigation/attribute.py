@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, cast, Generic, TypeVar
 
-from .. import errors
+from hwr_indoor_navigation import error
 
 
 T = TypeVar("T")

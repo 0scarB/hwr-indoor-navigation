@@ -2,8 +2,8 @@ import pytest
 
 from dataclasses import dataclass
 
-from hwr_indoor_navigation.utils.immutability import externally_immutable_cls
-from hwr_indoor_navigation import errors
+from immutability import externally_immutable_cls
+from hwr_indoor_navigation import error
 
 
 def test_can_access_attribute_on_externally_immutable_cls():
