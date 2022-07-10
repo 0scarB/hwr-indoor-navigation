@@ -1,5 +1,5 @@
 import event
-from config import Config
+from ._config import Config
 
 
 class App:
