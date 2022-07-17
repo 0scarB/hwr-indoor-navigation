@@ -4,7 +4,7 @@ import sys
 from typing import List, Optional
 
 import error
-from .._types import Type, Processor, ResponsesValue, Event
+from event._type import Type, Processor, ResponsesValue, Event
 
 
 class ShutdownResponsesProcessor(

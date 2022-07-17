@@ -1,25 +1,19 @@
 from __future__ import annotations
 
-from typing import Protocol, List
+from typing import List, Callable
 
 from sshkeyboard import listen_keyboard, stop_listening
 
 from interface import WithStartup, WithShutdown
 
 
-class Subscriber(Protocol):
-
-    def handle_key_changed(self, key: str) -> None:
-        ...
-
-
 class KeyboardListener(WithStartup, WithShutdown):
     _current_key: str | None
-    _subscribers: List[Subscriber]
+    _key_change_handlers: List[Callable[[str], None]]
 
     def __init__(self) -> None:
         self._current_key = None
-        self._subscribers = []
+        self._key_change_handlers = []
 
     def startup(self) -> None:
         listen_keyboard(
@@ -30,8 +24,8 @@ class KeyboardListener(WithStartup, WithShutdown):
     def shutdown(self) -> None:
         stop_listening()
 
-    def add_subscriber(self, subscribers: Subscriber) -> None:
-        self._subscribers.append(subscribers)
+    def add_key_change_handler(self, handler: Callable[[str], None]) -> None:
+        self._key_change_handlers.append(handler)
 
     async def _handle_key_press(self, key: str) -> None:
         self._current_key = key
@@ -40,7 +34,7 @@ class KeyboardListener(WithStartup, WithShutdown):
         self._handle_key_change(None)
 
     def _handle_key_change(self, key: str | None) -> None:
-        for subscriber in self._subscribers:
-            subscriber.handle_key_changed(key)
+        for handler in self._key_change_handlers:
+            handler(key)
 
         self._current_key = key

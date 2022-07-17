@@ -2,9 +2,9 @@ class EventFailure(Exception):
     pass
 
 
-class SetHeadingFailure(EventFailure):
+class WrongHeading(EventFailure):
     pass
 
 
-class SetSpeedFailure(EventFailure):
+class WrongSpeed(EventFailure):
     pass

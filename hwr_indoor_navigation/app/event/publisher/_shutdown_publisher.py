@@ -1,6 +1,6 @@
 from typing import List, Tuple
 
-from .._types import Publisher, Type
+from event._type import Publisher, Type
 
 
 class ShutdownPublisher(Publisher):

@@ -1,45 +1,46 @@
 import event
+import terminal_controls
 from ._config import Config
+from . import _event as local_event
+from . import _error as error
+import robot
 
 
 class App:
-    _event_broker: event.Broker
-    _shutdown_publisher: event.publisher.ShutdownPublisher
+    _config: Config
 
     def __init__(self, config: Config) -> None:
-        self._event_broker = event.Broker(config.event)
-        self._shutdown_publisher = event.publisher.ShutdownPublisher()
+        self._config = config
 
-    def run(self) -> None:
-        self._startup()
-        self._shutdown()
+    def start(self) -> None:
+        event_broker = event.Broker(self._config.event)
 
-    def _startup(self) -> None:
-        startup_publisher = event.publisher.StartupPublisher()
+        startup_publisher = local_event.publisher.StartupPublisher()
+        shutdown_publisher = local_event.publisher.ShutdownPublisher()
 
-        self._event_broker.add_publisher(
+        event_broker.add_publisher(
             event.Topic.REQUEST,
             startup_publisher
         )
-        self._event_broker.add_publisher(
+        event_broker.add_publisher(
             event.Topic.REQUEST,
-            self._shutdown_publisher
+            shutdown_publisher
         )
-
-        self._event_broker.add_processor(
-            event.Topic.REQUEST,
-            event.Type.SHUTDOWN,
-            event.processor.ShutdownRequestProcessor()
-        )
-        self._event_broker.add_processor(
+        event_broker.add_processor(
             event.Topic.RESPONSES,
             event.Type.SHUTDOWN,
-            event.processor.ShutdownResponsesProcessor()
+            local_event.processor.ShutdownResponsesProcessor()
         )
 
         startup_publisher.publish()
 
-        # Robot().startup()
-
-    def _shutdown(self) -> None:
-        self._shutdown_publisher.publish()
+    def _use_services(self, broker: event.Broker) -> None:
+        for service_name, service_config in self._config.services:
+            if service_name == "robot":
+                robot.Robot(service_config).use_event_broker(broker)
+            if service_name == "terminal_controls":
+                terminal_controls.TerminalControls(
+                    service_config
+                ).use_event_broker(broker)
+            else:
+                raise error.UnexpectedServiceError(service_name)

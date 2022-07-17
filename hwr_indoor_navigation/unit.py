@@ -170,6 +170,13 @@ class UnitValue:
     def to(self, unit: str) -> UnitValue:
         return self.converter.convert(self, unit)
 
+    def __neg__(self) -> UnitValue:
+        return UnitValue(
+            -self.value,
+            unit=self.unit,
+            converter=self.converter,
+        )
+
     def __str__(self) -> str:
         return f"{self.value}{self.unit}"
 

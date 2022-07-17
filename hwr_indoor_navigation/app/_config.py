@@ -1,8 +1,18 @@
 from dataclasses import dataclass
+from typing import Literal, Iterable, Tuple, Union
 
-from .event import Config as EventConfig
+import event
+import robot
+import terminal_controls
+
+
+Service = Union[
+    Tuple[Literal["robot"], robot.Config],
+    Tuple[Literal["terminal_controls"], terminal_controls.Config]
+]
 
 
 @dataclass(frozen=True)
 class Config:
-    event: EventConfig
+    event: event.Config
+    services: Iterable[Service]

@@ -1,0 +1,2 @@
+class UnexpectedServiceError(Exception):
+    pass
