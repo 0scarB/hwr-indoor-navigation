@@ -1,13 +1,13 @@
 import os
 import launch
+from ament_index_python.packages import get_package_share_directory 
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 import launch_ros
 
 
 def generate_launch_description():
-    pkg_share = launch_ros.substitutions.FindPackageShare(package='hwr_indoor_navigation').find('hwr_indoor_navigation')
-    default_model_path = os.path.join(pkg_share, 'pi_bot_description.urdf')
+    default_model_path = os.path.join(get_package_share_directory('hwr_indoor_navigation'), 'pi_bot_description.urdf')
 
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
