@@ -5,7 +5,7 @@ from typing import Tuple
 from event import RequestMetadata
 from robot.event import (
     RequestProcessor,
-    EventType,
+    Type,
     SetMovementSpeedRequestValue,
     SetMovementSpeedSuccessValue,
     SetMovementSpeedFailureValue,
@@ -16,9 +16,9 @@ from robot import ForwardBackwardMotor
 class SetMovementSpeedProcessor(
     RequestProcessor[
         SetMovementSpeedRequestValue,
-        EventType.SET_MOVEMENT_SPEED_SUCCESS,
+        Type.SET_MOVEMENT_SPEED_SUCCESS,
         SetMovementSpeedSuccessValue,
-        EventType.SET_MOVEMENT_SPEED_FAILURE,
+        Type.SET_MOVEMENT_SPEED_FAILURE,
         SetMovementSpeedFailureValue,
     ]
 ):
@@ -32,15 +32,15 @@ class SetMovementSpeedProcessor(
             value: SetMovementSpeedRequestValue,
             metadata: RequestMetadata
     ) -> Tuple[
-        EventType.SET_MOVEMENT_SPEED_SUCCESS,
-        SetMovementSpeedSuccessValue
+                            Type.SET_MOVEMENT_SPEED_SUCCESS,
+                            SetMovementSpeedSuccessValue
     ] | Tuple[
-        EventType.SET_MOVEMENT_SPEED_FAILURE,
-        SetMovementSpeedFailureValue
+                            Type.SET_MOVEMENT_SPEED_FAILURE,
+                            SetMovementSpeedFailureValue
     ]:
         try:
             self._motor.set_speed(value)
         except SetMovementSpeedFailureValue as failure_value:
-            return EventType.SET_MOVEMENT_SPEED_FAILURE, failure_value
+            return Type.SET_MOVEMENT_SPEED_FAILURE, failure_value
 
-        return EventType.SET_MOVEMENT_SPEED_SUCCESS, value
+        return Type.SET_MOVEMENT_SPEED_SUCCESS, value

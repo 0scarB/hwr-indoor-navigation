@@ -5,7 +5,7 @@ from typing import Tuple
 from event import RequestMetadata
 from robot.event import (
     RequestProcessor,
-    EventType,
+    Type,
     SetHeadingRequestValue,
     SetHeadingSuccessValue,
     SetHeadingFailureValue,
@@ -16,9 +16,9 @@ from robot import SteeringMotor
 class SetHeadingProcessor(
     RequestProcessor[
         SetHeadingRequestValue,
-        EventType.SET_HEADING_SUCCESS,
+        Type.SET_HEADING_SUCCESS,
         SetHeadingSuccessValue,
-        EventType.SET_HEADING_FAILURE,
+        Type.SET_HEADING_FAILURE,
         SetHeadingFailureValue,
     ]
 ):
@@ -32,15 +32,15 @@ class SetHeadingProcessor(
             value: SetHeadingRequestValue,
             metadata: RequestMetadata
     ) -> Tuple[
-        EventType.SET_HEADING_SUCCESS,
-        SetHeadingSuccessValue
+                            Type.SET_HEADING_SUCCESS,
+                            SetHeadingSuccessValue
     ] | Tuple[
-        EventType.SET_HEADING_FAILURE,
-        SetHeadingFailureValue
+                            Type.SET_HEADING_FAILURE,
+                            SetHeadingFailureValue
     ]:
         try:
             self._motor.set_heading(value)
         except SetHeadingFailureValue as failure_value:
-            return EventType.SET_HEADING_SUCCESS, failure_value
+            return Type.SET_HEADING_SUCCESS, failure_value
 
-        return EventType.SET_HEADING_FAILURE, value
+        return Type.SET_HEADING_FAILURE, value

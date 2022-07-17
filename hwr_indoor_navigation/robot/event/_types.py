@@ -1,13 +1,13 @@
 from enum import Enum
 from typing import Union
 
-from app.event import Type as _AppEventType
+from app.event import Type as _AppType
 
 
-class _LocalEventType(str, Enum):
+class _LocalType(str, Enum):
     SET_HEADING = "set_heading"
-    SET_MOVEMENT = "set_movement"
+    SET_SPEED = "set_movement"
     CAPTURED_LIDAR_DATA = "capture_lidar_data"
 
 
-EventType = Union[_AppEventType, _LocalEventType]
+Type = Union[_AppType, _LocalType]

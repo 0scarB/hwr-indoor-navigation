@@ -31,3 +31,7 @@ class MutabilityDisallowed(Exception):
 
 class ShutdownFailure(RuntimeError):
     pass
+
+
+class ValueNotSet(Exception):
+    pass
