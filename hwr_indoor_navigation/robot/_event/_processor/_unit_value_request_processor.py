@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Callable, List, TypeVar, Protocol, Tuple, ClassVar
+from typing import Callable, List, TypeVar, Tuple, ClassVar
 
 import event
 import unit
@@ -15,13 +15,13 @@ _TExpectedError = TypeVar("_TExpectedError", bound=Exception)
 
 
 class UnitValueRequestProcessor(
-    Protocol[_TEvent, _TFailureValue, _TCorrection, _TExpectedError],
+    typing.Generic[_TEvent, _TFailureValue, _TCorrection, _TExpectedError],
     event.Processor[
         _TEvent,
         unit.UnitValue,
         event.Success[unit.UnitValue],
         event.Failure[_TFailureValue]
-    ]
+    ],
 ):
     _EXPECTED_ERROR: ClassVar[_TExpectedError]
     _FAILURE_VALUE_TYPE: ClassVar[typing.Type[_TFailureValue]]

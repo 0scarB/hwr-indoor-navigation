@@ -14,24 +14,24 @@ class SetRobotSpeedPublisher(
         unit.UnitValue
     ]
 ):
-    _heading: unit.UnitValue | None
+    _speed: unit.UnitValue | None
 
     def __init__(self) -> None:
-        self._heading = None
+        self._speed = None
 
-    def set_heading(self, heading: unit.UnitValue) -> None:
-        self._heading = heading
+    def set_speed(self, heading: unit.UnitValue) -> None:
+        self._speed = heading
 
     def publish(self) -> List[
         Tuple[robot.event.Type.SET_SPEED, unit.UnitValue]
         | Tuple[robot.event.Type.SET_SPEED, unit.UnitValue, global_event.LogLevel]
     ]:
-        if self._heading is None:
+        if self._speed is None:
             raise error.HeadingNotSet(
                 "Cannot publish set robot speed event without heading value being set first"
             )
 
         return [(
             robot.event.Type.SET_SPEED,
-            self._heading
+            self._speed
         )]

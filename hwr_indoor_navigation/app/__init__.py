@@ -18,6 +18,8 @@ class App:
         startup_publisher = local_event.publisher.StartupPublisher()
         shutdown_publisher = local_event.publisher.ShutdownPublisher()
 
+        self._use_services(event_broker)
+
         event_broker.add_publisher(
             event.Topic.REQUEST,
             startup_publisher
@@ -38,7 +40,7 @@ class App:
         for service_name, service_config in self._config.services:
             if service_name == "robot":
                 robot.Robot(service_config).use_event_broker(broker)
-            if service_name == "terminal_controls":
+            elif service_name == "terminal_controls":
                 terminal_controls.TerminalControls(
                     service_config
                 ).use_event_broker(broker)

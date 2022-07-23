@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import unit
 import event as global_event
 from . import _component as component
@@ -17,8 +19,10 @@ class ForwardBackwardMover:
     def use_shutdown_request_event_processor(self, processor: global_event.processor.ShutdownRequestProcessor) -> None:
         processor.shutdown_obj_on_request(self._motor)
 
-    def use_set_speed_request_event_processor(self, processor: event.processor.SetSpeedRequestProcessor) -> None:
+    def use_set_speed_request_event_processor(self, processor: event._processor.SetSpeedRequestProcessor) -> None:
         processor.add_handler(self.handle_request_set_speed)
 
-    def handle_request_set_speed(self, speed: unit.UnitValue):
+    def handle_request_set_speed(self, speed: unit.UnitValue) -> Tuple[bool, None]:
         self._motor.set_speed(speed)
+
+        return True, None

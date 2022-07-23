@@ -11,9 +11,9 @@ class Robot(global_event.Service):
 
     def use_event_broker(self, broker: global_event.Broker) -> None:
         startup_request_processor = global_event.processor.StartupRequestProcessor()
-        set_speed_request_processor = event._processor.SetHeadingRequestProcessor()
-        set_heading_request_processor = event._processor.SetHeadingRequestProcessor()
         shutdown_request_processor = global_event.processor.ShutdownRequestProcessor()
+        set_speed_request_processor = event._processor.SetSpeedRequestProcessor()
+        set_heading_request_processor = event._processor.SetHeadingRequestProcessor()
 
         forward_backward_mover = ForwardBackwardMover(
             _component.ForwardBackwardMotor()
@@ -22,7 +22,6 @@ class Robot(global_event.Service):
             _component.SteeringMotor()
         )
         forward_backward_mover.use_startup_request_event_processor(startup_request_processor)
-        set_speed_request_processor.use_startup_request_event_processor(startup_request_processor)
         forward_backward_mover.use_set_speed_request_event_processor(
             set_speed_request_processor
         )
@@ -30,26 +29,25 @@ class Robot(global_event.Service):
             set_heading_request_processor
         )
         forward_backward_mover.use_shutdown_request_event_processor(shutdown_request_processor)
-        set_speed_request_processor.use_shutdown_request_event_processor(shutdown_request_processor)
 
         broker.add_processor(
             global_event.Topic.REQUEST,
-            event.Type.STARTUP,
+            global_event.Type.STARTUP,
             startup_request_processor,
         )
         broker.add_processor(
             global_event.Topic.REQUEST,
-            event.Type.SET_ROBOT_SPEED,
+            global_event.Type.SHUTDOWN,
+            shutdown_request_processor,
+        )
+        broker.add_processor(
+            global_event.Topic.REQUEST,
+            event.Type.SET_SPEED,
             set_speed_request_processor,
         )
         broker.add_processor(
             global_event.Topic.REQUEST,
-            event.Type.SET_ROBOT_HEADING,
+            event.Type.SET_HEADING,
             set_heading_request_processor,
-        )
-        broker.add_processor(
-            global_event.Topic.REQUEST,
-            event.Type.STARTUP,
-            shutdown_request_processor,
         )
 

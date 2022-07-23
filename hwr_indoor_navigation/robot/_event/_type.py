@@ -1,19 +1,14 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union
 
-import event
 import unit
 from .._error import WrongHeading
 
 
-class _LocalType(str, Enum):
+class Type(str, Enum):
     SET_HEADING = "set_heading"
     SET_SPEED = "set_movement"
     CAPTURED_LIDAR_DATA = "capture_lidar_data"
-
-
-Type = Union[event.Type, _LocalType]
 
 
 @dataclass(frozen=True)

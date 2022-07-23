@@ -28,7 +28,7 @@ class KeyboardListener(WithStartup, WithShutdown):
         self._key_change_handlers.append(handler)
 
     async def _handle_key_press(self, key: str) -> None:
-        self._current_key = key
+        self._handle_key_change(key)
 
     async def _handle_key_release(self, key: str) -> None:
         self._handle_key_change(None)

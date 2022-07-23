@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Tuple, Set, List
 
-from hwr_indoor_navigation import error
+import error
 
 
 _TConversionCallback = Callable[[float], float]
@@ -257,7 +257,7 @@ class UnitValue:
 
         try:
             return self.converter.convert(other, self.unit).value
-        except errors.UnitConversionNotAdded:
+        except error.UnitConversionNotAdded:
             pass
 
         return other.converter.convert(other, self.unit).value

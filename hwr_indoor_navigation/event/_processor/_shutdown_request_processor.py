@@ -5,11 +5,11 @@ from typing import List, Optional
 
 from event._type import (
     Type,
-    Processor,
     Success,
     Failure,
     Event,
 )
+from .._interface import Processor
 from interface import WithShutdown
 
 

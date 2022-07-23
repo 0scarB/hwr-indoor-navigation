@@ -5,7 +5,7 @@ from .._type import *
 from ._unit_value_request_processor import UnitValueRequestProcessor
 
 
-class SetHeadingRequestProcessor(
+class SetSpeedRequestProcessor(
     UnitValueRequestProcessor[
         Type.SET_HEADING,
         error.WrongHeading,

@@ -36,15 +36,26 @@ class SetRobotUnitValueResponseProcessor(
             self,
             event_: event.Event[event.Success[unit.UnitValue] | event.Failure[robot.event.UnitValueFailureValue]]
     ) -> None:
-        if isinstance(event_.value, robot.event.UnitValueCorrection):
+        successes = event_.value.successes
+        failures = event_.value.failures
+
+        if len(successes) + len(failures) != 1:
+            raise ValueError("Expected single response")
+
+        if len(successes) == 1:
+            self._handle_success(successes[0].value)
+            return
+
+        failure = failures[0]
+        if isinstance(failure, robot.event.UnitValueCorrection):
             try:
-                self._handle_correction(event_.value.correction)
+                self._handle_correction(failure.correction)
             except Exception as err:
                 raise err from event_.value.error
-        elif isinstance(event_.value, robot.event.UnitValueFailureValue):
-            raise event_.value
+        elif isinstance(failure, robot.event.UnitValueFailureValue):
+            raise failure.error
         else:
-            raise ValueError(event_.value)
+            raise ValueError(failure)
 
     def _handle_success(self, value: unit.UnitValue) -> None:
         for handler in self._success_handlers:

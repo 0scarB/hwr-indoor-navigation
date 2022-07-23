@@ -7,15 +7,14 @@ from ._config import Config
 from . import _error as error
 from ._type import (
     Event,
-    Publisher,
     Topic,
     Type,
-    Processor,
     Success,
     Failure,
     LogLevel,
     ResponsesValue,
 )
+from ._interface import Publisher, Processor
 
 
 class Broker:
@@ -89,6 +88,10 @@ class Broker:
                 successes.append(result)
             elif isinstance(result, Failure):
                 failures.append(result)
+
+        # We publish a response event if no processors returned a result.
+        if len(successes) == 0 and len(failures) == 0:
+            return
 
         self._generate_and_publish(
             Topic.RESPONSES,

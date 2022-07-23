@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Protocol, Tuple
+from typing import Protocol, Tuple, TYPE_CHECKING
 
 from ._type import *
-from ._broker import Broker
+if TYPE_CHECKING:  # avoid circular import
+    from ._broker import Broker
 
 
 class Publisher(Protocol[T, V]):
