@@ -6,7 +6,7 @@ from .._interface import Publisher
 from .._type import Type
 
 
-class StartupEventPublisher(
+class ShutdownEventPublisher(
     Publisher[
         Type.STARTUP,
         Optional[Exception]

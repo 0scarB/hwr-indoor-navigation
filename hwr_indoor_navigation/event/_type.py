@@ -32,6 +32,8 @@ class Event(Generic[T, V]):
     id_: int
     timestamp: int
     value: V
+    published_by: str | None
+    returned_as_processing_response_by: list[str] | None
     log_level: LogLevel
 
 

@@ -34,4 +34,4 @@ class ShutdownResponsesProcessor(
                 f"System shut down successfully because of errors: {errs_str}"
             )
 
-        raise SystemExit(0)
+        sys.exit(0)

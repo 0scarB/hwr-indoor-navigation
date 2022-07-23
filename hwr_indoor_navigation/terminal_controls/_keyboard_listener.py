@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 from typing import List, Callable
 
-from sshkeyboard import listen_keyboard, stop_listening
+from sshkeyboard import stop_listening, listen_keyboard_manual
 
 from interface import WithStartup, WithShutdown
 
@@ -15,11 +16,11 @@ class KeyboardListener(WithStartup, WithShutdown):
         self._current_key = None
         self._key_change_handlers = []
 
-    def startup(self) -> None:
-        listen_keyboard(
+    async def startup(self) -> None:
+        asyncio.ensure_future(listen_keyboard_manual(
             on_press=self._handle_key_press,
             on_release=self._handle_key_release
-        )
+        ))
 
     def shutdown(self) -> None:
         stop_listening()

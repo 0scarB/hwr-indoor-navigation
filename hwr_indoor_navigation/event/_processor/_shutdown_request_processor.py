@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Awaitable
 from typing import List, Optional
 
-from event._type import (
+from .._type import (
     Type,
     Success,
     Failure,
@@ -29,14 +30,16 @@ class ShutdownRequestProcessor(
     def shutdown_obj_on_request(self, obj: WithShutdown) -> None:
         self._objs_with_shutdown.append(obj)
 
-    def process(
+    async def process(
             self,
             event: Event[Type.SHUTDOWN, Optional[Exception]],
     ) -> Success[Optional[Exception]] | Failure[List[Exception]]:
         errs: List[Exception] = []
         for obj in self._objs_with_shutdown:
             try:
-                obj.shutdown()
+                result = obj.shutdown()
+                if isinstance(result, Awaitable):
+                    await result
             except Exception as failure_value:
                 # We don't fail fast because as many objects should
                 # have the chance to successfully shut down as possible.
