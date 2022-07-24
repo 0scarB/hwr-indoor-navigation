@@ -9,21 +9,21 @@ import rclpy
 from rclpy.node import Node
 
 from sensor_msgs.msg import LaserScan
+from ._component import Lidar
 
 sys.path.append(os.path.dirname(__file__))
-
-import lidar
 
 class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
 
     def __init__(self):
+        rclpy.init(args=None)
         super().__init__('lidar')
-        self.lidar = lidar.Lidar()
+        self.lidar = Lidar()
         self.publisher_ = self.create_publisher(LaserScan, 'scan', 10)
         self.is_started: bool = False
 
     def startup(self) -> None:
-        rclpy.init(args=None)
+        self.is_started = True
         asyncio.ensure_future(self.publish())
 
     def shutdown(self) -> None:
@@ -35,7 +35,7 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
         self.destroy_node()
         rclpy.shutdown()
 
-    async def publish(self, output):
+    async def publish(self):
         output = self.lidar.capture_output()
 
         while self.is_started:

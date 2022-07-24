@@ -21,8 +21,8 @@ class Robot(global_event.Service):
         set_heading_request_processor = event._processor.SetHeadingRequestProcessor()
 
         lidar_data_publisher = LidarDataPublisher()
-        startup_request_processor.startup_obj_on_request(lidar_data_publisher)
-        shutdown_request_processor.shutdown_obj_on_request(lidar_data_publisher)
+        # startup_request_processor.startup_obj_on_request(lidar_data_publisher)
+        # shutdown_request_processor.shutdown_obj_on_request(lidar_data_publisher)
         forward_backward_mover = ForwardBackwardMover(
             _component.ForwardBackwardMotor()
         )
