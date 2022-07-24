@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unit
 from ._config import Config
 from . import _event as event
@@ -20,12 +22,15 @@ class ForwardBackwardKeysHandler:
         processor.add_correction_handler(self._handle_set_robot_speed_correction)
 
     def use_set_robot_speed_publisher(self, publisher: event.publisher.SetRobotSpeedPublisher) -> None:
-        def forward_backward_key_handler(key: str) -> None:
+        def forward_backward_key_handler(key: str | None) -> None:
             if key == self._config.forward_key:
                 publisher.set_speed(self._config.movement_speed)
                 publisher.publish()
             elif key == self._config.backward_key:
                 publisher.set_speed(-self._config.movement_speed)
+                publisher.publish()
+            elif key is None:
+                publisher.set_speed(unit.UnitValue(0, "forward_backward_motor_pwm_duty_cycle"))
                 publisher.publish()
 
         self._keyboard_listener.add_key_change_handler(forward_backward_key_handler)

@@ -1,32 +1,32 @@
+from __future__ import annotations
+
 from interface import WithStartup, WithShutdown
 from unit import UnitValue
+import Adafruit_PCA9685
 
 
 class SteeringMotor(WithStartup, WithShutdown):
-    _heading: UnitValue
+    _heading: UnitValue | None
+    _pwm: Adafruit_PCA9685.PCA9685 | None
 
     def __init__(self):
-        self._heading = UnitValue(0, "steering_motor_pwm_frequency")
+        self._heading = UnitValue(300, "steering_motor_pwm_frequency")
+        self._pwm = None
 
     def startup(self) -> None:
-        # TODO: Real implementation
-        print(f"starting {type(self).__name__}")
+        self._pwm = Adafruit_PCA9685.PCA9685()
+        self._pwm.set_pwm_freq(50)
 
     def set_heading(self, heading: UnitValue) -> None:
-        """
-        Set the motor's speed.
+        if self._pwm is None:
+            raise RuntimeError("Motor is has not started")
 
-        A positive speed will move the motor forward.
-        A negative speed will move the motor backward.
-        Speed 0 will stop moving the motor.
-        """
+        self._pwm.set_pwm(0, 0, heading.to("steering_motor_pwm_frequency").value)
+
         self._heading = heading
-        # TODO: Real implementation
-        print(f"set robot heading to {self._heading}")
 
     def get_heading(self) -> UnitValue:
         return self._heading
 
     def shutdown(self) -> None:
-        # TODO: Real implementation
-        print(f"shutting down {type(self).__name__}")
+        pass

@@ -8,6 +8,10 @@ from ._steerer import Steerer
 
 
 class Robot(global_event.Service):
+    _config: Config
+
+    def __init__(self, config: Config) -> None:
+        self._config = config
 
     def use_event_broker(self, broker: global_event.Broker) -> None:
         startup_request_processor = global_event.processor.StartupRequestProcessor()
@@ -25,6 +29,7 @@ class Robot(global_event.Service):
         forward_backward_mover.use_set_speed_request_event_processor(
             set_speed_request_processor
         )
+        steerer.use_startup_request_event_processor(startup_request_processor)
         steerer.use_set_heading_request_event_processor(
             set_heading_request_processor
         )
