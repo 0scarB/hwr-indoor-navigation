@@ -37,9 +37,11 @@ class StartupRequestProcessor(
         errs: List[Exception] = []
         for obj in self._objs_with_startup:
             try:
+                print(f"Starting up {obj}")
                 result = obj.startup()
                 if isinstance(result, Awaitable):
                     await result
+                print(f"Successfully started: {obj}")
             except Exception as failure_value:
                 # We don't fail fast because as many objects should
                 # have the chance to successfully shut down as possible.

@@ -13,15 +13,21 @@ class Lidar:
         dist: float
         angle: float
 
+    def __init__(self):
+        self.is_capturing = False
+
     def capture_output(self) -> Generator["Lidar.Output", None, None]:
-        with subprocess.Popen(
-            [f"{os.path.dirname(__file__)}/capture-lidar-data-and-print-to-stdout"],
-            encoding="utf-8",  # needed for text instead of bytes
-            stdout=subprocess.PIPE,
-            shell=False
-        ) as proc:
-            proc_stdout, proc_stderr = proc.communicate(timeout=5)
-            yield from self.read_lidar_data_from_file_descriptor(cast(IO[str], proc_stdout))
+        with open("lidar_out.txt", "w") as fdw:
+            with subprocess.Popen(
+                [f"{os.path.dirname(__file__)}/capture-lidar-data-and-print-to-stdout"],
+                encoding="utf-8",  # needed for text instead of bytes
+                stdout=fdw
+            ) as proc:
+                with open("lidar_out.txt", "r") as fdr:
+                    self.is_capturing = True
+                    yield from self.read_lidar_data_from_file_descriptor(cast(IO[str], fdr))
+                    print("test")
+                    self.is_capturing = False
 
     def read_lidar_data_from_file_descriptor(self, fd: IO[str]) -> Generator["Lidar.Output", None, None]:
         for line_group in self.read_line_groups_from_file_descriptor(fd):
@@ -32,9 +38,9 @@ class Lidar:
             )
 
     def read_line_groups_from_file_descriptor(self, fd: IO[str]) -> Generator[List[str], None, None]:
-        while True:
+        while self.is_capturing:
             line_group: List[str] = []
-            while True:
+            while self.is_capturing:
                 line = fd.readline().rstrip()
                 if line == "":
                     if len(line_group) == 3:

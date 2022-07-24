@@ -4,6 +4,7 @@ import math
 import time
 import asyncio
 import interface
+import threading
 
 import rclpy
 from rclpy.node import Node
@@ -21,13 +22,17 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
         self.lidar = Lidar()
         self.publisher_ = self.create_publisher(LaserScan, 'scan', 10)
         self.is_started: bool = False
+        self.is_stopped: bool = True
 
     def startup(self) -> None:
         self.is_started = True
-        asyncio.ensure_future(self.publish())
+        self.is_stopped = False
+        self.capture_data_thread = threading.Thread(target=self.publish)
+        self.capture_data_thread.start()
 
     def shutdown(self) -> None:
         self.is_started = False
+        self.capture_data_thread.join(timeout=5)
         rclpy.spin(self)
         # Destroy the node explicitly
         # (optional - otherwise it will be done automatically
@@ -35,7 +40,7 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
         self.destroy_node()
         rclpy.shutdown()
 
-    async def publish(self):
+    def publish(self):
         output = self.lidar.capture_output()
 
         while self.is_started:
@@ -44,7 +49,7 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
             ranges = []
             intensities = []
             n_readings = 0
-            while True:
+            while self.is_started:
                 entry = next(output)
 
                 if entry.angle == 0:
@@ -75,3 +80,4 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
                 intensities.append(float(entry.angle))
 
                 n_readings += 1
+        self.is_stopped = True
