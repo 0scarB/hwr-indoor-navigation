@@ -16,10 +16,12 @@ class Lidar:
     def capture_output(self) -> Generator["Lidar.Output", None, None]:
         with subprocess.Popen(
             [f"{os.path.dirname(__file__)}/capture-lidar-data-and-print-to-stdout"],
-            stdout=subprocess.PIPE,
             encoding="utf-8",  # needed for text instead of bytes
+            stdout=subprocess.PIPE,
+            shell=False
         ) as proc:
-            yield from self.read_lidar_data_from_file_descriptor(cast(IO[str], proc.stdout))
+            proc_stdout, proc_stderr = proc.communicate(timeout=5)
+            yield from self.read_lidar_data_from_file_descriptor(cast(IO[str], proc_stdout))
 
     def read_lidar_data_from_file_descriptor(self, fd: IO[str]) -> Generator["Lidar.Output", None, None]:
         for line_group in self.read_line_groups_from_file_descriptor(fd):
