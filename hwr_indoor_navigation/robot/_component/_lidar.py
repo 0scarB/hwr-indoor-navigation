@@ -13,9 +13,6 @@ class Lidar:
         dist: float
         angle: float
 
-    def __init__(self):
-        pass
-
     def capture_output(self) -> Generator["Lidar.Output", None, None]:
         with subprocess.Popen(
             [f"{os.path.dirname(__file__)}/capture-lidar-data-and-print-to-stdout"],
@@ -43,9 +40,3 @@ class Lidar:
                     line_group.clear()
                 else:
                     line_group.append(line)
-
-
-if __name__ == "__main__":
-    lidar = Lidar()
-    for output in lidar.capture_output():
-        print(output)

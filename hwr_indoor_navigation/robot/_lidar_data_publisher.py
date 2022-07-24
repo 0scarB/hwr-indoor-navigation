@@ -2,6 +2,8 @@ import sys
 import os
 import math
 import time
+import asyncio
+import interface
 
 import rclpy
 from rclpy.node import Node
@@ -12,16 +14,31 @@ sys.path.append(os.path.dirname(__file__))
 
 import lidar
 
-class MinimalPublisher(Node):
+class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
 
     def __init__(self):
         super().__init__('lidar')
         self.lidar = lidar.Lidar()
         self.publisher_ = self.create_publisher(LaserScan, 'scan', 10)
+        self.is_started: bool = False
 
-    def publish(self):
+    def startup(self) -> None:
+        rclpy.init(args=None)
+        asyncio.ensure_future(self.publish())
+
+    def shutdown(self) -> None:
+        self.is_started = False
+        rclpy.spin(self)
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        self.destroy_node()
+        rclpy.shutdown()
+
+    async def publish(self, output):
         output = self.lidar.capture_output()
-        while True:
+
+        while self.is_started:
             rot_start = time.time()
 
             ranges = []
@@ -58,22 +75,3 @@ class MinimalPublisher(Node):
                 intensities.append(float(entry.angle))
 
                 n_readings += 1
-
-def main(args=None):
-    rclpy.init(args=args)
-
-    minimal_publisher = MinimalPublisher()
-
-    minimal_publisher.publish()
-
-    rclpy.spin(minimal_publisher)
-
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()

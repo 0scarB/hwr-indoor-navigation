@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from xmlrpc.client import Boolean
 
 
 @dataclass(frozen=True)
 class Config:
-    pass
+    use_lidar: bool

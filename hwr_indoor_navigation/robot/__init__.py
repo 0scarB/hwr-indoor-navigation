@@ -5,6 +5,7 @@ from . import _component
 from ._config import Config
 from ._forward_backward_mover import ForwardBackwardMover
 from ._steerer import Steerer
+from ._lidar_data_publisher import LidarDataPublisher
 
 
 class Robot(global_event.Service):
@@ -19,6 +20,9 @@ class Robot(global_event.Service):
         set_speed_request_processor = event._processor.SetSpeedRequestProcessor()
         set_heading_request_processor = event._processor.SetHeadingRequestProcessor()
 
+        lidar_data_publisher = LidarDataPublisher()
+        startup_request_processor.startup_obj_on_request(lidar_data_publisher)
+        shutdown_request_processor.shutdown_obj_on_request(lidar_data_publisher)
         forward_backward_mover = ForwardBackwardMover(
             _component.ForwardBackwardMotor()
         )
