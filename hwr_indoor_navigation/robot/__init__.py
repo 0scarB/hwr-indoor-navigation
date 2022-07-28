@@ -1,3 +1,5 @@
+import rclpy
+
 import event as global_event
 from . import _event as event
 from . import _error as error
@@ -20,6 +22,8 @@ class Robot(global_event.Service):
         shutdown_request_processor = global_event.processor.ShutdownRequestProcessor()
         set_speed_request_processor = event._processor.SetSpeedRequestProcessor()
         set_heading_request_processor = event._processor.SetHeadingRequestProcessor()
+
+        rclpy.init(args=None)
 
         # lidar_data_publisher = LidarDataPublisher()
         # startup_request_processor.startup_obj_on_request(lidar_data_publisher)
