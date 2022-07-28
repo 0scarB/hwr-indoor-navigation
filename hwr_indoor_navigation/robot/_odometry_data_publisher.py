@@ -14,7 +14,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
     def __init__(self):
         super().__init__('robot_odom')
         self.odom_pub = self.create_publisher(Odometry, "odom", 10)
-        self.odom_broadcaster = tf2_ros.TransformBroadcaster()
+        self.odom_broadcaster = tf2_ros.TransformBroadcaster(self)
 
     def startup(self) -> None:
         self.publish_thread = threading.Thread(target=self.publish)
