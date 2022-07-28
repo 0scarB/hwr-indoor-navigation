@@ -6,6 +6,7 @@ from ._config import Config
 from ._forward_backward_mover import ForwardBackwardMover
 from ._steerer import Steerer
 from ._lidar_data_publisher import LidarDataPublisher
+from ._odometry_data_publisher import OdometryDataPublisher
 
 
 class Robot(global_event.Service):
@@ -23,6 +24,11 @@ class Robot(global_event.Service):
         lidar_data_publisher = LidarDataPublisher()
         startup_request_processor.startup_obj_on_request(lidar_data_publisher)
         shutdown_request_processor.shutdown_obj_on_request(lidar_data_publisher)
+
+        odometry_data_publisher = OdometryDataPublisher()
+        startup_request_processor.startup_obj_on_request(odometry_data_publisher)
+        shutdown_request_processor.shutdown_obj_on_request(odometry_data_publisher)
+
         forward_backward_mover = ForwardBackwardMover(
             _component.ForwardBackwardMotor()
         )
