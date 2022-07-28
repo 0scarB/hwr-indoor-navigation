@@ -45,7 +45,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
 
-            self.br.sendTransform(t)
+            self.odom_broadcaster.sendTransform(t)
 
             time.sleep(0.5)
 
