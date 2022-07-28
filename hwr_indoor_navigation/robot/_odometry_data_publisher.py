@@ -6,7 +6,7 @@ from rclpy.node import Node
 import tf2_ros
 import tf_transformations
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
+from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3, TransformStamped
 
 import interface
 
