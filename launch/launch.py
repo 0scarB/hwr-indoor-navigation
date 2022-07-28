@@ -26,10 +26,6 @@ def generate_launch_description():
         name='joint_state_publisher_gui',
         condition=launch.conditions.IfCondition(LaunchConfiguration('gui'))
     )
-    lidar_node = launch_ros.actions.Node(
-        package='hwr_indoor_navigation',
-        executable='publisher_lidar_data'
-    )
 
     return launch.LaunchDescription([
         launch.actions.DeclareLaunchArgument(name='gui', default_value='True',
@@ -38,6 +34,5 @@ def generate_launch_description():
                                             description='Absolute path to robot urdf file'),
         joint_state_publisher_node,
         joint_state_publisher_gui_node,
-        robot_state_publisher_node,
-        lidar_node
+        robot_state_publisher_node
     ])
