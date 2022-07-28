@@ -26,7 +26,6 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         self.publish_thread.join()
 
     def publish(self) -> None:
-        r = rclpy.Rate(1.0)
         while True:
             t = TransformStamped()
 
