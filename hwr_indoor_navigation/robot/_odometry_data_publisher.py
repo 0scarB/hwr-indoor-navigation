@@ -1,8 +1,10 @@
 import threading
+import time
 
 import rclpy
 from rclpy.node import Node
 import tf2_ros
+import tf_transformations
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, Vector3
 
@@ -21,45 +23,30 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         self.publish_thread.start()
 
     def shutdown(self) -> None:
-        pass
+        self.publish_thread.join()
 
     def publish(self) -> None:
         r = rclpy.Rate(1.0)
         while True:
-            x = 0.0
-            y = 0.0
-            th = 0.0
+            t = TransformStamped()
 
-            # since all odometry is 6DOF we'll need a quaternion created from yaw
-            odom_quat = tf2_ros.transformations.quaternion_from_euler(0, 0, th)
+            t.header.stamp = self.get_clock().now().to_msg()
+            t.child_frame_id = "base_link"
 
-            # first, we'll publish the transform over tf
-            self.odom_broadcaster.sendTransform(
-                (x, y, 0.),
-                odom_quat,
-                rclpy.Time.now(),
-                "base_link",
-                "odom"
-            )
+            t.transform.translation.x = 0.0
+            t.transform.translation.y = 0.0
+            t.transform.translation.z = 0.0
 
-            # next, we'll publish the odometry message over ROS
-            odom = Odometry()
-            odom.header.stamp = rclpy.Time.now()
-            odom.header.frame_id = "odom"
+            # For the same reason, turtle can only rotate around one axis
+            # and this why we set rotation in x and y to 0 and obtain
+            # rotation in z axis from the message
+            q = tf_transformations.quaternion_from_euler(0, 0, 0.0)
+            t.transform.rotation.x = q[0]
+            t.transform.rotation.y = q[1]
+            t.transform.rotation.z = q[2]
+            t.transform.rotation.w = q[3]
 
-            # set the position
-            odom.pose.pose = Pose(Point(x, y, 0.), Quaternion(*odom_quat))
+            self.br.sendTransform(t)
 
-            vx = 0.0
-            vy = -0.0
-            vth = 0.0
-
-            # set the velocity
-            odom.child_frame_id = "base_link"
-            odom.twist.twist = Twist(Vector3(vx, vy, 0), Vector3(0, 0, vth))
-
-            # publish the message
-            self.odom_pub.publish(odom)
-
-            r.sleep()
+            time.sleep(0.5)
 
