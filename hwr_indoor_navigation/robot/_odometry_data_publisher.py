@@ -13,7 +13,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
 
     def __init__(self):
         super().__init__('robot_odom')
-        self.odom_pub = rospy.Publisher("odom", Odometry, queue_size=50)
+        self.odom_pub = rclpy.Publisher("odom", Odometry, queue_size=50)
         self.odom_broadcaster = tf2_ros.TransformBroadcaster()
 
     def startup(self) -> None:
@@ -24,7 +24,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         pass
 
     def publish(self) -> None:
-        r = rospy.Rate(1.0)
+        r = rclpy.Rate(1.0)
         while True:
             x = 0.0
             y = 0.0
@@ -37,14 +37,14 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
             self.odom_broadcaster.sendTransform(
                 (x, y, 0.),
                 odom_quat,
-                rospy.Time.now(),
+                rclpy.Time.now(),
                 "base_link",
                 "odom"
             )
 
             # next, we'll publish the odometry message over ROS
             odom = Odometry()
-            odom.header.stamp = current_time
+            odom.header.stamp = rclpy.Time.now()
             odom.header.frame_id = "odom"
 
             # set the position
