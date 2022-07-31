@@ -29,10 +29,6 @@ class Robot(global_event.Service):
         startup_request_processor.startup_obj_on_request(lidar_data_publisher)
         shutdown_request_processor.shutdown_obj_on_request(lidar_data_publisher)
 
-        odometry_data_publisher = OdometryDataPublisher()
-        startup_request_processor.startup_obj_on_request(odometry_data_publisher)
-        shutdown_request_processor.shutdown_obj_on_request(odometry_data_publisher)
-
         forward_backward_mover = ForwardBackwardMover(
             _component.ForwardBackwardMotor()
         )
@@ -48,6 +44,12 @@ class Robot(global_event.Service):
             set_heading_request_processor
         )
         forward_backward_mover.use_shutdown_request_event_processor(shutdown_request_processor)
+
+        odometry_data_publisher = OdometryDataPublisher()
+        startup_request_processor.startup_obj_on_request(odometry_data_publisher)
+        shutdown_request_processor.shutdown_obj_on_request(odometry_data_publisher)
+        forward_backward_mover.on_change_speed(odometry_data_publisher.handle_change_speed)
+        steerer.on_change_heading(odometry_data_publisher.handle_change_heading)
 
         broker.add_processor(
             global_event.Topic.REQUEST,

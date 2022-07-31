@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Tuple, Set, List
 
@@ -25,6 +26,8 @@ class Converter:
         self._origin_unit_to_target_units = {}
         self._origin_unit_to_target_unit_conversions = {}
         self._origin_unit_to_target_unit_conversions_chains = {}
+
+        self._add_global_conversions()
 
     def add_conversion(self, origin: str, target: str, callback: _TConversionCallback) -> None:
         already_added_targets = self._origin_unit_to_target_units.get(origin, set())
@@ -156,6 +159,16 @@ class Converter:
             raise errors.UnitConversionNotAdded(f"No conversion from '{origin}' to '{target}' added") from err
 
         return convert(value)
+
+    def _add_global_conversions(self) -> None:
+        self._add_degrees_to_radians_conversion()
+
+    def _add_degrees_to_radians_conversion(self) -> None:
+        self.add_linear_conversion(
+            "degrees",
+            "radians",
+            math.pi / 180
+        )
 
 
 global_converter = Converter()
