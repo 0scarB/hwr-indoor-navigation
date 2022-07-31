@@ -24,12 +24,18 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
 
     def shutdown(self) -> None:
         self.publish_thread.join()
+        rclpy.spin(self)
+        # Destroy the node explicitly
+        # (optional - otherwise it will be done automatically
+        # when the garbage collector destroys the node object)
+        self.destroy_node()
 
     def publish(self) -> None:
         while True:
             t = TransformStamped()
 
             t.header.stamp = self.get_clock().now().to_msg()
+            t.header.frame_id = "odom"
             t.child_frame_id = "base_link"
 
             t.transform.translation.x = 0.0
@@ -47,5 +53,25 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
 
             self.odom_broadcaster.sendTransform(t)
 
-            time.sleep(0.5)
+            odom_data = Odometry()
+            odom_data.header.frame_id = t.header.frame_id
+            odom_data.header.stamp = t.header.stamp
+            odom_data.child_frame_id = t.child_frame_id
 
+            # set the position
+            odom_data.pose.pose.position.x = 0.0
+            odom_data.pose.pose.position.y = 0.0
+            odom_data.pose.pose.position.z = 0.0
+            odom_data.pose.pose.orientation.x = q[0]
+            odom_data.pose.pose.orientation.y = q[1]
+            odom_data.pose.pose.orientation.z = q[2]
+            odom_data.pose.pose.orientation.w = q[3]
+
+            # set the velocity
+            odom_data.twist.twist.linear.x = 0.0
+            odom_data.twist.twist.linear.y = 0.0
+            odom_data.twist.twist.angular.z = 0.0
+
+            self.odom_pub.publish(odom_data)
+
+            time.sleep(0.001)

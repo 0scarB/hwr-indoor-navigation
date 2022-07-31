@@ -17,7 +17,6 @@ sys.path.append(os.path.dirname(__file__))
 class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
 
     def __init__(self):
-        rclpy.init(args=None)
         super().__init__('lidar')
         self.lidar = Lidar()
         self.publisher_ = self.create_publisher(LaserScan, 'scan', 10)
@@ -69,7 +68,7 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
                     scan_data.ranges = ranges
                     scan_data.intensities = intensities
                     self.publisher_.publish(scan_data)
-                    self.get_logger().info(f"Publishing: {scan_data}")
+                    #self.get_logger().info(f"Publishing: {scan_data}")
 
                     ranges.clear()
                     intensities.clear()
