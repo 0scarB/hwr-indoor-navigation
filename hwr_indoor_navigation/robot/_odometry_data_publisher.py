@@ -35,6 +35,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         super().__init__('robot_odom')
         self.odom_pub = self.create_publisher(Odometry, "odom", 10)
         self.odom_broadcaster = tf2_ros.TransformBroadcaster(self)
+        self.publish_thread_lock = threading.Lock()
 
         self._current_odometry = None
 
@@ -81,28 +82,29 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         ))
 
     def handle_change_odometry(self, new_odometry_data: OdometryData) -> None:
-        if self._current_odometry is None:
+        with self.publish_thread_lock:
+            if self._current_odometry is None:
+                self._current_odometry = new_odometry_data
+
+            time_delta = new_odometry_data.measured_at - self._current_odometry.measured_at
+
+            heading_in_radians = new_odometry_data.heading.to("radians").value
+            speed_in_meters_per_second = new_odometry_data.speed.to("m/s").value
+
+            if speed_in_meters_per_second == 0:
+                self._vx = 0.0
+                self._vy = 0.0
+            else:
+                self._vx = math.cos(heading_in_radians) * speed_in_meters_per_second
+                self._vy = math.sin(heading_in_radians) * speed_in_meters_per_second
+
+            self._x += self._vx * time_delta
+            self._y += self._vy * time_delta
+            self._theta = heading_in_radians
+
+            print(f"{self._x=}, {self._y=}, {self._vx=}, {self._vy=}, {self._theta=},")
+
             self._current_odometry = new_odometry_data
-
-        time_delta = new_odometry_data.measured_at - self._current_odometry.measured_at
-
-        heading_in_radians = new_odometry_data.heading.to("radians").value
-        speed_in_meters_per_second = new_odometry_data.speed.to("m/s").value
-
-        if speed_in_meters_per_second == 0:
-            self._vx = 0.0
-            self._vy = 0.0
-        else:
-            self._vx = math.cos(heading_in_radians) * speed_in_meters_per_second
-            self._vy = math.sin(heading_in_radians) * speed_in_meters_per_second
-
-        self._x += self._vx * time_delta
-        self._y += self._vy * time_delta
-        self._theta = heading_in_radians
-
-        print(f"{self._x=}, {self._y=}, {self._vx=}, {self._vy=}, {self._theta=},")
-
-        self._current_odometry = new_odometry_data
 
     def publish(self) -> None:
         while True:
