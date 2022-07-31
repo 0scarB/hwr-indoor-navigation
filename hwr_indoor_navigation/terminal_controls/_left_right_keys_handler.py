@@ -34,6 +34,15 @@ class LeftRightKeysHandler:
 
         self._keyboard_listener.add_key_change_handler(left_right_key_handler)
 
+    def use_set_robot_speed_publisher(self, publisher: event.publisher.SetRobotSpeedPublisher) -> None:
+        def left_right_key_handler(key: str) -> None:
+            if key == self._config.left_key or key == self._config.right_key:
+                # Increment heading
+                publisher.set_speed(unit.UnitValue(0, "m/s"))
+                publisher.publish()
+
+        self._keyboard_listener.add_key_change_handler(left_right_key_handler)
+
     def _handle_set_robot_heading_success_processor(self, heading: unit.UnitValue) -> None:
         self._heading = heading
 

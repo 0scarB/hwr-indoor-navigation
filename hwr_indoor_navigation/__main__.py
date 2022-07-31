@@ -15,7 +15,7 @@ import app
 
 app = app.App(app.Config(
     event=event.Config(
-        log_level=logging.DEBUG
+        log_level=logging.WARN
     ),
     services=[
         ("robot", robot.Config(use_lidar=True)),

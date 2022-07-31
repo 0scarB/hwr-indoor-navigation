@@ -33,7 +33,7 @@ class Converter:
         already_added_targets = self._origin_unit_to_target_units.get(origin, set())
 
         if target in already_added_targets:
-            raise errors.UnitConversionAlreadyAdded(f"from '{origin}' to '{target}'")
+            raise error.UnitConversionAlreadyAdded(f"from '{origin}' to '{target}'")
 
         self._origin_unit_to_target_units[origin] = already_added_targets | {target}
         self._origin_unit_to_target_unit_conversions[(origin, target)] = callback
@@ -91,13 +91,13 @@ class Converter:
             if len(chain) > 0:
                 previous = chain[-1]
                 if current not in self._origin_unit_to_target_units[previous]:
-                    raise errors.UnitConversionNotAdded(
+                    raise error.UnitConversionNotAdded(
                         f"No conversion from '{previous}' to '{current}' added"
                     )
 
                 is_loop = current in chain
                 if current not in self._origin_unit_to_target_units[previous] or is_loop:
-                    raise errors.UnitConversionInvalidChain(
+                    raise error.UnitConversionInvalidChain(
                         f"Found looping chain '{self.conversion_chain_to_string(chain + [current])}'"
                     )
 
@@ -111,17 +111,17 @@ class Converter:
                         next_,
                         target
                     )
-                except (errors.UnitConversionNotAdded, errors.UnitConversionInvalidChain) as err:
+                except (error.UnitConversionNotAdded, error.UnitConversionInvalidChain) as err:
                     pass
 
-            raise errors.UnitConversionInvalidChain(
+            raise error.UnitConversionInvalidChain(
                 f"No paths could be found to get from '{current}' to '{target}'"
             )
 
         try:
             chain = find_conversion_chain_recursive([], origin, target)
-        except (errors.UnitConversionNotAdded, errors.UnitConversionInvalidChain) as err:
-            raise errors.UnitConversionNotAdded(
+        except (error.UnitConversionNotAdded, error.UnitConversionInvalidChain) as err:
+            raise error.UnitConversionNotAdded(
                 f"No conversion from '{origin}' to '{target}' added"
             ) from err
 
@@ -131,23 +131,23 @@ class Converter:
 
     def _validate_conversion_chain(self, origin: str, target: str, chain: List[str]) -> None:
         if len(chain) == 0:
-            raise errors.UnitConversionInvalidChain("Cannot add empty conversion chain")
+            raise error.UnitConversionInvalidChain("Cannot add empty conversion chain")
 
         if chain[0] != origin:
-            raise errors.UnitConversionInvalidChain(
+            raise error.UnitConversionInvalidChain(
                 f"Conversion chain from '{origin}' to '{target}' must start with '{origin}', "
                 f"found '{self.conversion_chain_to_string(chain)}'"
             )
 
         if chain[-1] != target:
-            raise errors.UnitConversionInvalidChain(
+            raise error.UnitConversionInvalidChain(
                 f"Conversion chain from '{origin}' to '{target}' must end with '{target}', "
                 f"found '{self.conversion_chain_to_string(chain)}'"
             )
 
         for first_unit, second_unit in zip(chain[:-1], chain[1:]):
             if (first_unit, second_unit) not in self._origin_unit_to_target_unit_conversions:
-                raise errors.UnitConversionNotAddedInChain(
+                raise error.UnitConversionNotAddedInChain(
                     f"No conversion added for subsequent units in chain '{first_unit}' and '{second_unit}' "
                     f"for chain '{self.conversion_chain_to_string(chain)}'"
                 )
@@ -156,7 +156,7 @@ class Converter:
         try:
             convert = self._origin_unit_to_target_unit_conversions[(origin, target)]
         except KeyError as err:
-            raise errors.UnitConversionNotAdded(f"No conversion from '{origin}' to '{target}' added") from err
+            raise error.UnitConversionNotAdded(f"No conversion from '{origin}' to '{target}' added") from err
 
         return convert(value)
 

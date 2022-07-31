@@ -49,7 +49,7 @@ class ForwardBackwardMotor(WithStartup, WithShutdown):
             GPIO.output(self._MOTOR_A_PIN2, GPIO.LOW)
 
         self._pwm_a.start(100)
-        self._pwm_a.ChangeDutyCycle(speed.to("forward_backward_motor_pwm_duty_cycle").value)
+        self._pwm_a.ChangeDutyCycle(abs(speed.to("forward_backward_motor_pwm_duty_cycle").value))
 
         self._speed = speed
 

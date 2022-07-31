@@ -39,6 +39,7 @@ class TerminalControls(global_event.Service):
         forward_backward_keys_handler.use_set_robot_speed_publisher(set_robot_speed_publisher)
         forward_backward_keys_handler.use_set_robot_speed_response_processor(set_robot_speed_response_event_processor)
         left_right_keys_handler.use_set_robot_heading_publisher(set_robot_heading_publisher)
+        left_right_keys_handler.use_set_robot_speed_publisher(set_robot_speed_publisher)
         left_right_keys_handler.use_set_robot_heading_response_processor(set_robot_heading_response_event_processor)
 
         # use event broker for publishing/processing

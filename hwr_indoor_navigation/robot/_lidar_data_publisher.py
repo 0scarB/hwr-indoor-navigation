@@ -57,7 +57,7 @@ class LidarDataPublisher(Node, interface.WithStartup, interface.WithShutdown):
 
                     scan_data = LaserScan()
                     scan_data.header.stamp = self.get_clock().now().to_msg()
-                    scan_data.header.frame_id = "laser_frame"
+                    scan_data.header.frame_id = "odom"
                     scan_data.angle_min = 0.0
                     scan_data.angle_max = 2 * math.pi
                     scan_data.angle_increment = 2 * math.pi / n_readings
