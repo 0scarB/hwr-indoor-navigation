@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import launch
 from ament_index_python.packages import get_package_share_directory 
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 import launch_ros
 from pathlib import Path
@@ -16,6 +16,7 @@ class Paths:
     nav2_params_file: Path
     default_rviz_config_file: Path
     slam_toolbox_launch_file: Path
+    costmap_2d_launch_file: Path
 
 
 def generate_launch_description():
@@ -44,6 +45,9 @@ def generate_launch_description():
         name='amcl',
         output='screen',
     )
+    costmap_2d_node = launch.actions.IncludeLaunchDescription(
+        AnyLaunchDescriptionSource("./costmap_2d.launch")
+    )
 
     return launch.LaunchDescription([
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=str(paths.default_rviz_config_file),
@@ -52,6 +56,7 @@ def generate_launch_description():
         slam_node,
         rviz_node,
         amcl_node,
+        costmap_2d_node
     ])
 
 
