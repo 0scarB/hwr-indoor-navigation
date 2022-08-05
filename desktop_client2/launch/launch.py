@@ -17,7 +17,6 @@ def generate_launch_description():
         package='joint_state_publisher',
         executable='joint_state_publisher',
         name='joint_state_publisher',
-        condition=launch.conditions.UnlessCondition(LaunchConfiguration('gui'))
     )
     joint_state_publisher_gui_node = launch_ros.actions.Node(
         package='joint_state_publisher_gui',
