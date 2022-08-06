@@ -7,8 +7,6 @@ def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(package="desktop_client2").find("desktop_client2")
     default_model_path = os.path.join(pkg_share, "src/description/pi_bot_description.urdf")
     default_rviz_config_path = os.path.join(pkg_share, "rviz/urdf_config.rviz")
-    bringup_dir = launch_ros.substitutions.FindPackageShare(package="desktop_client2").find("nav2_bringup")
-    bringup_launch_file = os.path.join(bringup_dir, 'launch', 'navigation_launch.py')
     slam_toolbox_dir = launch_ros.substitutions.FindPackageShare(package="desktop_client2").find("slam_toolbox")
     slam_launch_file = os.path.join(slam_toolbox_dir, "launch", "online_async_launch.py")
 
@@ -51,9 +49,6 @@ def generate_launch_description():
             name="rvizconfig",
             default_value=default_rviz_config_path,
             description="Absolute path to rviz config file"
-        ),
-        launch.actions.IncludeLaunchDescription(
-            launch.launch_description_sources.PythonLaunchDescriptionSource([bringup_launch_file])
         ),
         launch.actions.IncludeLaunchDescription(
             launch.launch_description_sources.PythonLaunchDescriptionSource([slam_launch_file])
