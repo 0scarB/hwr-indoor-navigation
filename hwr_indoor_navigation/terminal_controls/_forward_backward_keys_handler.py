@@ -30,7 +30,7 @@ class ForwardBackwardKeysHandler:
                 publisher.set_speed(-self._config.movement_speed)
                 publisher.publish()
             elif key is None:
-                publisher.set_speed(unit.UnitValue(0, "drive_motor_pwm_duty_cycle"))
+                publisher.set_speed(unit.UnitValue(0, "_drive_motor_pwm_duty_cycle"))
                 publisher.publish()
 
         self._keyboard_listener.add_key_change_handler(forward_backward_key_handler)

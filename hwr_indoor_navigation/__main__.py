@@ -20,8 +20,8 @@ app = app.App(app.Config(
     services=[
         ("robot", robot.Config(use_lidar=True)),
         ("terminal_controls", terminal_controls.Config(
-            movement_speed=UnitValue(100, "drive_motor_pwm_duty_cycle"),
-            steering_increment=UnitValue(20, "steering_motor_pwm_frequency"),
+            movement_speed=UnitValue(100, "_drive_motor_pwm_duty_cycle"),
+            steering_increment=UnitValue(20, "_steering_motor_pwm_duty_cycle"),
             forward_key="w",
             backward_key="s",
             left_key="a",

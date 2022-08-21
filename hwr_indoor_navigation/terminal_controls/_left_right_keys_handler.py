@@ -12,7 +12,7 @@ class LeftRightKeysHandler:
     def __init__(self, config: Config, keyboard_listener: KeyboardListener) -> None:
         self._config = config
         self._keyboard_listener = keyboard_listener
-        self._heading = unit.UnitValue(300, "steering_motor_pwm_frequency")
+        self._heading = unit.UnitValue(300, "_steering_motor_pwm_duty_cycle")
 
     def use_set_robot_heading_response_processor(
             self,
@@ -30,6 +30,15 @@ class LeftRightKeysHandler:
             elif key == self._config.right_key:
                 # Decrement heading
                 publisher.set_heading(self._heading - self._config.steering_increment)
+                publisher.publish()
+
+        self._keyboard_listener.add_key_change_handler(left_right_key_handler)
+
+    def use_set_robot_speed_publisher(self, publisher: event.publisher.SetRobotSpeedPublisher) -> None:
+        def left_right_key_handler(key: str) -> None:
+            if key == self._config.left_key or key == self._config.right_key:
+                # Increment heading
+                publisher.set_speed(unit.UnitValue(0, "m/s"))
                 publisher.publish()
 
         self._keyboard_listener.add_key_change_handler(left_right_key_handler)

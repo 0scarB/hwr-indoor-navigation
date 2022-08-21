@@ -1,10 +1,15 @@
+import math
+
 import RPi.GPIO as GPIO
 
 from interface import WithStartup, WithShutdown
-from unit import UnitValue
+from unit import UnitValue, global_converter
 
 
 class DriveMotor(WithStartup, WithShutdown):
+    _WHEEL_DIAMETER_IN_METERS = 0.065
+    _WHEEL_ROTATIONS_PER_PWM_DUTY_CYCLE = 0.014
+
     _MOTOR_A_EN = 17
     _MOTOR_A_PIN1 = 27
     _MOTOR_A_PIN2 = 18
@@ -13,7 +18,7 @@ class DriveMotor(WithStartup, WithShutdown):
     _pwm_a = GPIO.PWM | None
 
     def __init__(self):
-        self._speed = UnitValue(0, "drive_motor_pwm_duty_cycle")
+        self._speed = UnitValue(0, "_drive_motor_pwm_duty_cycle")
         self._pwm_a = None
 
     def startup(self) -> None:
@@ -28,11 +33,13 @@ class DriveMotor(WithStartup, WithShutdown):
         self.shutdown()  # Avoid motor starting to rotate automatically after initialization
         self._pwm_a = GPIO.PWM(self._MOTOR_A_EN, 1000)
 
+        self._add_unit_value_conversion()
+
     def set_speed(self, speed: UnitValue) -> None:
         if self._pwm_a is None:
             raise RuntimeError("Motor is has not started")
 
-        pwm_speed = speed.to("drive_motor_pwm_duty_cycle").value
+        pwm_speed = speed.to("_drive_motor_pwm_duty_cycle").value
 
         if pwm_speed > 0:
             GPIO.output(self._MOTOR_A_PIN1, GPIO.LOW)
@@ -42,7 +49,7 @@ class DriveMotor(WithStartup, WithShutdown):
             GPIO.output(self._MOTOR_A_PIN2, GPIO.LOW)
 
         self._pwm_a.start(100)
-        self._pwm_a.ChangeDutyCycle(speed.to("drive_motor_pwm_duty_cycle").value)
+        self._pwm_a.ChangeDutyCycle(speed.to("_drive_motor_pwm_duty_cycle").value)
 
         self._speed = speed
 
@@ -50,3 +57,10 @@ class DriveMotor(WithStartup, WithShutdown):
         GPIO.output(self._MOTOR_A_PIN1, GPIO.LOW)
         GPIO.output(self._MOTOR_A_PIN2, GPIO.LOW)
         GPIO.output(self._MOTOR_A_EN, GPIO.LOW)
+
+    def _add_unit_value_conversion(self) -> None:
+        global_converter.add_linear_conversion(
+            "_drive_motor_pwm_duty_cycle",
+            "m/s",
+            math.pi * self._WHEEL_DIAMETER_IN_METERS * self._WHEEL_ROTATIONS_PER_PWM_DUTY_CYCLE
+        )
