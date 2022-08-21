@@ -6,12 +6,13 @@ from . import _component as component
 from . import _event as event
 
 
-class ForwardBackwardMover:
+class Drive:
     """Service class for forward and backward movement"""
+    _motor: component.DriveMotor
     _motor: component.ForwardBackwardMotor
     _on_change_speed_callbacks: List[Callable[[unit.UnitValue], None]]
 
-    def __init__(self, motor: component.ForwardBackwardMotor) -> None:
+    def __init__(self, motor: component.DriveMotor) -> None:
         self._motor = motor
         self._on_change_speed_callbacks = []
 

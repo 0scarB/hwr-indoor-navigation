@@ -12,7 +12,7 @@ class LeftRightKeysHandler:
     def __init__(self, config: Config, keyboard_listener: KeyboardListener) -> None:
         self._config = config
         self._keyboard_listener = keyboard_listener
-        self._heading = unit.UnitValue(300, "_steering_motor_pwm")
+        self._heading = unit.UnitValue(300, "_steering_motor_pwm_duty_cycle")
 
     def use_set_robot_heading_response_processor(
             self,

@@ -6,7 +6,7 @@ from . import _component as component
 from . import _event as event
 
 
-class Steerer:
+class Steering:
     """Service class for steering"""
     _motor: component.SteeringMotor
     _on_change_heading_callbacks: List[Callable[[unit.UnitValue], None]]

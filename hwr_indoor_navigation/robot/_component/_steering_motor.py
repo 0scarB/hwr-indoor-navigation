@@ -13,7 +13,10 @@ class SteeringMotor(WithStartup, WithShutdown):
     _pwm: Adafruit_PCA9685.PCA9685 | None
 
     def __init__(self):
-        self._heading = UnitValue(300, "_steering_motor_pwm")
+        self._heading = UnitValue(
+            (self._PWN_FOR_180_DEGREES + self._PWM_FOR_0_DEGREES) / 2,
+            "_steering_motor_pwm_duty_cycle"
+        )
         self._pwm = None
 
     def startup(self) -> None:
@@ -26,7 +29,7 @@ class SteeringMotor(WithStartup, WithShutdown):
         if self._pwm is None:
             raise RuntimeError("Motor is has not started")
 
-        self._pwm.set_pwm(0, 0, heading.to("_steering_motor_pwm").value)
+        self._pwm.set_pwm(0, 0, heading.to("_steering_motor_pwm_duty_cycle").value)
 
         self._heading = heading
 
@@ -38,7 +41,7 @@ class SteeringMotor(WithStartup, WithShutdown):
 
     def _add_unit_value_conversion(self) -> None:
         global_converter.add_linear_conversion(
-            "_steering_motor_pwm",
+            "_steering_motor_pwm_duty_cycle",
             "degrees",
             180 / (self._PWN_FOR_180_DEGREES - self._PWM_FOR_0_DEGREES)
         )
