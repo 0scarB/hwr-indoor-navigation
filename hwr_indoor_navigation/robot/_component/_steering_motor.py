@@ -10,7 +10,7 @@ class SteeringMotor(WithStartup, WithShutdown):
     _pwm: Adafruit_PCA9685.PCA9685 | None
 
     def __init__(self):
-        self._heading = UnitValue(300, "steering_motor_pwm_frequency")
+        self._heading = UnitValue(330, "steering_motor_pwm_frequency")
         self._pwm = None
 
     def startup(self) -> None:

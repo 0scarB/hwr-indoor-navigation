@@ -6,11 +6,11 @@ from . import _component as component
 from . import _event as event
 
 
-class ForwardBackwardMover:
+class Drive:
     """Service class for forward and backward movement"""
-    _motor: component.ForwardBackwardMotor
+    _motor: component.DriveMotor
 
-    def __init__(self, motor: component.ForwardBackwardMotor) -> None:
+    def __init__(self, motor: component.DriveMotor) -> None:
         self._motor = motor
 
     def use_startup_request_event_processor(self, processor: global_event.processor.StartupRequestProcessor) -> None:

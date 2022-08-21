@@ -3,8 +3,8 @@ from . import _event as event
 from . import _error as error
 from . import _component
 from ._config import Config
-from ._forward_backward_mover import ForwardBackwardMover
-from ._steerer import Steerer
+from ._forward_backward_mover import Drive
+from ._steering import Steering
 from ._lidar_data_publisher import LidarDataPublisher
 
 
@@ -23,10 +23,10 @@ class Robot(global_event.Service):
         lidar_data_publisher = LidarDataPublisher()
         startup_request_processor.startup_obj_on_request(lidar_data_publisher)
         shutdown_request_processor.shutdown_obj_on_request(lidar_data_publisher)
-        forward_backward_mover = ForwardBackwardMover(
-            _component.ForwardBackwardMotor()
+        forward_backward_mover = Drive(
+            _component.DriveMotor()
         )
-        steerer = Steerer(
+        steerer = Steering(
             _component.SteeringMotor()
         )
         forward_backward_mover.use_startup_request_event_processor(startup_request_processor)

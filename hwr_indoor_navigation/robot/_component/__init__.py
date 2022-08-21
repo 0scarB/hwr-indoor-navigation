@@ -1,3 +1,3 @@
-from ._forward_backward_motor import ForwardBackwardMotor
+from ._drive import DriveMotor
 from ._steering_motor import SteeringMotor
 from ._lidar import Lidar
