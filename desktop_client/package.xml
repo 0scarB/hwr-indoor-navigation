@@ -7,7 +7,10 @@
   <maintainer email="PiBot@email.com">ubuntu</maintainer>
   <license>TODO: License declaration</license>
 
-  <exec_depend>rviz</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>nav2_amcl</exec_depend>
+  <exec_depend>nav2_costmap_2d</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
