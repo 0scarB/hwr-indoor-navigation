@@ -1,0 +1,1 @@
+[CSerialConnection]Could not open serial port '/dev/ttyUSB0'!

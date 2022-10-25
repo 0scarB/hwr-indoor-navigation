@@ -2,11 +2,11 @@ import math
 
 import RPi.GPIO as GPIO
 
-from interface import WithStartup, WithShutdown
 from unit import UnitValue, global_converter
+from ._interface import Component
 
 
-class DriveMotor(WithStartup, WithShutdown):
+class DriveMotor(Component):
     _WHEEL_DIAMETER_IN_METERS = 0.065
     _WHEEL_ROTATIONS_PER_PWM_DUTY_CYCLE = 0.014
 
@@ -18,7 +18,7 @@ class DriveMotor(WithStartup, WithShutdown):
     _pwm_a = GPIO.PWM | None
 
     def __init__(self):
-        self._speed = UnitValue(0, "_drive_motor_pwm_duty_cycle")
+        self._speed = UnitValue(0, "forward_backward_motor_pwm_duty_cycle")
         self._pwm_a = None
 
     def startup(self) -> None:
@@ -39,7 +39,7 @@ class DriveMotor(WithStartup, WithShutdown):
         if self._pwm_a is None:
             raise RuntimeError("Motor is has not started")
 
-        pwm_speed = speed.to("_drive_motor_pwm_duty_cycle").value
+        pwm_speed = speed.to("forward_backward_motor_pwm_duty_cycle").value
 
         if pwm_speed > 0:
             GPIO.output(self._MOTOR_A_PIN1, GPIO.LOW)
@@ -49,7 +49,7 @@ class DriveMotor(WithStartup, WithShutdown):
             GPIO.output(self._MOTOR_A_PIN2, GPIO.LOW)
 
         self._pwm_a.start(100)
-        self._pwm_a.ChangeDutyCycle(abs(speed.to("_drive_motor_pwm_duty_cycle").value))
+        self._pwm_a.ChangeDutyCycle(abs(speed.to("forward_backward_motor_pwm_duty_cycle").value))
 
         self._speed = speed
 
@@ -60,7 +60,7 @@ class DriveMotor(WithStartup, WithShutdown):
 
     def _add_unit_value_conversion(self) -> None:
         global_converter.add_linear_conversion(
-            "_drive_motor_pwm_duty_cycle",
+            "forward_backward_motor_pwm_duty_cycle",
             "m/s",
             math.pi * self._WHEEL_DIAMETER_IN_METERS * self._WHEEL_ROTATIONS_PER_PWM_DUTY_CYCLE
         )

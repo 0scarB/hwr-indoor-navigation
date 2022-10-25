@@ -9,7 +9,7 @@ from . import _event as event
 class Drive:
     """Service class for forward and backward movement"""
     _motor: component.DriveMotor
-    _motor: component.ForwardBackwardMotor
+    _motor: component.SteeringMotor
     _on_change_speed_callbacks: List[Callable[[unit.UnitValue], None]]
 
     def __init__(self, motor: component.DriveMotor) -> None:

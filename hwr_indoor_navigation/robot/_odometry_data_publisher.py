@@ -55,6 +55,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         self._x = 0.0
         self._y = 0.0
         self._theta = 0.0
+        self._yaw = 0.0
 
     def _handle_amcl_pose_msg(self, msg: PoseWithCovarianceStamped) -> None:
         odom_msg = Odometry()
@@ -113,29 +114,30 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         ))
 
     def handle_change_odometry(self, new_odometry_data: OdometryData) -> None:
-        with self.publish_thread_lock:
-            if self._current_odometry is None:
-                self._current_odometry = new_odometry_data
+        # print("test!!!!!!")
+        # with self.publish_thread_lock:
+        #     if self._current_odometry is None:
+        #         self._current_odometry = new_odometry_data
 
-            time_delta = new_odometry_data.measured_at - self._current_odometry.measured_at
-
-            heading_in_radians = new_odometry_data.heading.to("radians").value
-            speed_in_meters_per_second = new_odometry_data.speed.to("m/s").value
-
-            if speed_in_meters_per_second == 0:
-                self._vx = 0.0
-                self._vy = 0.0
-            else:
-                self._vx = math.cos(heading_in_radians) * speed_in_meters_per_second
-                self._vy = math.sin(heading_in_radians) * speed_in_meters_per_second
-
-            self._x += self._vx * time_delta
-            self._y += self._vy * time_delta
-            self._theta = heading_in_radians
+            # time_delta = new_odometry_data.measured_at - self._current_odometry.measured_at
+            #
+            # heading_in_radians = new_odometry_data.heading.to("radians").value
+            # speed_in_meters_per_second = new_odometry_data.speed.to("m/s").value
+            #
+            # if speed_in_meters_per_second == 0:
+            #     self._vx = 0.0
+            #     self._vy = 0.0
+            # else:
+            #     self._vx = math.cos(heading_in_radians) * speed_in_meters_per_second
+            #     self._vy = math.sin(heading_in_radians) * speed_in_meters_per_second
+            #
+            # self._x += self._vx * time_delta
+            # self._y += self._vy * time_delta
+            # self._theta = heading_in_radians
 
             # print(f"{self._x=}, {self._y=}, {self._vx=}, {self._vy=}, {self._theta=},")
 
-            self._current_odometry = new_odometry_data
+        self._current_odometry = new_odometry_data
 
     def publish(self) -> None:
         while True:
@@ -152,7 +154,42 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
                     measured_at=time.time()
                 )
 
-            self.handle_change_odometry(new_odometry_data)
+            # self.handle_change_odometry(new_odometry_data)
+
+            # with self.publish_thread_lock:
+            if self._current_odometry is None:
+                self._current_odometry = new_odometry_data
+
+            time_delta = new_odometry_data.measured_at - self._current_odometry.measured_at
+
+            heading_in_radians = new_odometry_data.heading.to("radians").value
+            speed_in_meters_per_second = new_odometry_data.speed.to("m/s").value
+
+            wheel_base = 0.14
+            angular_velocity = math.sin(heading_in_radians - math.pi / 2) * speed_in_meters_per_second / wheel_base
+            # angular_velocity = speed_in_meters_per_second * math.tan(heading_in_radians - math.pi / 2) / wheel_base
+
+            self._x += speed_in_meters_per_second * math.cos(self._yaw) * time_delta
+            self._y += speed_in_meters_per_second * math.sin(self._yaw) * time_delta
+
+            self._yaw += angular_velocity * time_delta
+
+            print(angular_velocity, speed_in_meters_per_second, heading_in_radians, self._yaw)
+
+            # if speed_in_meters_per_second == 0:
+            #     self._vx = 0.0
+            #     self._vy = 0.0
+            # else:
+            #     self._vx = math.cos(heading_in_radians) * speed_in_meters_per_second
+            #     self._vy = math.sin(heading_in_radians) * speed_in_meters_per_second
+            #
+            # self._x += self._vx * time_delta
+            # self._y += self._vy * time_delta
+            # self._theta = heading_in_radians
+
+            # print(f"{self._x=}, {self._y=}, {self._vx=}, {self._vy=}, {self._theta=},")
+
+            self._current_odometry = new_odometry_data
 
             t = TransformStamped()
 
@@ -167,33 +204,39 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
             # For the same reason, turtle can only rotate around one axis
             # and this why we set rotation in x and y to 0 and obtain
             # rotation in z axis from the message
-            q = tf_transformations.quaternion_from_euler(0, 0, self._theta)
+            q = tf_transformations.quaternion_from_euler(0, 0, self._yaw)
             t.transform.rotation.x = q[0]
             t.transform.rotation.y = q[1]
             t.transform.rotation.z = q[2]
             t.transform.rotation.w = q[3]
 
             self.transformation_broadcaster.sendTransform(t)
-
+            #
             odom_data = Odometry()
-            odom_data.header.frame_id = t.header.frame_id
-            odom_data.header.stamp = t.header.stamp
-            odom_data.child_frame_id = t.child_frame_id
+            odom_data.header.frame_id = "odom"
+            odom_data.header.stamp = self.get_clock().now().to_msg()
+            odom_data.child_frame_id = "base_link"
 
             # set the position
             odom_data.pose.pose.position.x = self._x
             odom_data.pose.pose.position.y = self._y
             odom_data.pose.pose.position.z = 0.0
-            odom_data.pose.pose.orientation.x = q[0]
-            odom_data.pose.pose.orientation.y = q[1]
-            odom_data.pose.pose.orientation.z = q[2]
-            odom_data.pose.pose.orientation.w = q[3]
+            odom_data.pose.pose.orientation.x = 0.0
+            odom_data.pose.pose.orientation.y = 0.0
+            odom_data.pose.pose.orientation.z = math.sin(self._yaw / 2.0)
+            odom_data.pose.pose.orientation.w = math.cos(self._yaw / 2.0)
+
+            odom_data.pose.covariance[0] = 0.2
+            odom_data.pose.covariance[7] = 0.2
+            odom_data.pose.covariance[35] = 0.4
 
             # set the velocity
-            odom_data.twist.twist.linear.x = self._vx
-            odom_data.twist.twist.linear.y = self._vy
-            odom_data.twist.twist.angular.z = 0.0
+            odom_data.twist.twist.linear.x = float(speed_in_meters_per_second)
+            odom_data.twist.twist.linear.y = 0.0
+            odom_data.twist.twist.angular.z = float(angular_velocity)
 
             self.odom_pub.publish(odom_data)
+
+            # print("aaaaaaaaaaaaaaaaaaaaaaaa")
 
             time.sleep(0.01)
