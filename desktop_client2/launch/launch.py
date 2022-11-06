@@ -1,5 +1,8 @@
+from ament_index_python.packages import get_package_share_directory
 import launch
 from launch.substitutions import Command, LaunchConfiguration
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 import launch_ros
 import os
@@ -65,6 +68,33 @@ def generate_launch_description():
         parameters=[params_file]
     )
 
+    bringup_dir = get_package_share_directory('nav2_bringup')
+    launch_dir = os.path.join(bringup_dir, 'launch')
+
+    # slam = LaunchConfiguration('slam')
+    # namespace = LaunchConfiguration('namespace')
+    # use_namespace = LaunchConfiguration('use_namespace')
+    # map_yaml_file = LaunchConfiguration('map')
+    # use_sim_time = LaunchConfiguration('use_sim_time')
+    # params_file = LaunchConfiguration('params_file')
+    # autostart = LaunchConfiguration('autostart')
+    # use_composition = LaunchConfiguration('use_composition')
+    # use_respawn = LaunchConfiguration('use_respawn')
+
+    bringup_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(launch_dir, 'bringup_launch.py')),
+        launch_arguments={'namespace': "",
+                          'use_namespace': "false",
+                          'slam': "False",
+                          'map': os.path.abspath("./launch/map.yaml"),
+                          'use_sim_time': "false",
+                          'params_file': os.path.abspath("./nav2_params.yaml"),
+                          'autostart': "true",
+                          'use_composition': "True",
+                          'use_respawn': "False"}.items())
+        # parameters=[params_file])
+
     return launch.LaunchDescription([
         launch.actions.DeclareLaunchArgument(
             name="gui",
@@ -106,5 +136,6 @@ def generate_launch_description():
             name='lifecycle_manager_localization',
             output='screen',
             parameters=[{'autostart': True}, {'node_names': ['amcl']}],
-        )
+        ),
+        bringup_cmd,
     ])
