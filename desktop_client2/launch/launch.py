@@ -1,5 +1,6 @@
 import launch
 from launch.substitutions import Command, LaunchConfiguration
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 import launch_ros
 import os
 
@@ -35,12 +36,27 @@ def generate_launch_description():
         output="screen",
         arguments=["-d", LaunchConfiguration("rvizconfig")],
     )
-    # map_server_node = launch_ros.actions.Node(
-    #     package="nav2_map_server",
-    #     executable="map_saver_cli",
-    #     name="map_server",
-    #     # arguments=["-f", "/map"],
+    nav2_costmap_2d_node = launch_ros.actions.Node(
+        package="nav2_costmap_2d",
+        executable="nav2_costmap_2d",
+        name="voxel_visualizer",
+        remappings=[("voxel_grid", "costmap/voxel_grid")],
+    )
+    costmap_node = launch_ros.actions.Node(
+        package="nav2_costmap_2d",
+        executable="nav2_costmap_2d",
+        name="costmap_node",
+        parameters=[f"{os.path.dirname(__file__)}/costmap_2d.launch.xml"],
+    )
+    # costmap_2d_node = launch.actions.IncludeLaunchDescription(
+    #     XMLLaunchDescriptionSource(f"{os.path.dirname(__file__)}/costmap_2d.launch.xml")
     # )
+    map_server_node = launch_ros.actions.Node(
+        package="nav2_map_server",
+        executable="map_saver_cli",
+        name="map_server",
+        # arguments=["-f", "/map"],
+    )
     amcl_node = launch_ros.actions.Node(
         package='nav2_amcl',
         executable='amcl',
@@ -80,8 +96,10 @@ def generate_launch_description():
         joint_state_publisher_gui_node,
         robot_state_publisher_node,
         rviz_node,
-        # map_server_node,
+        map_server_node,
         amcl_node,
+        nav2_costmap_2d_node,
+        costmap_node,
         launch_ros.actions.Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
