@@ -42,13 +42,14 @@ class Converter:
             self,
             origin: str,
             target: str,
-            target_is_x_times_origin: float
+            target_is_x_times_origin: float,
+            target_starting_value: float = 0,
     ) -> None:
         def convert_origin_to_target(value: float) -> float:
-            return target_is_x_times_origin * value
+            return target_is_x_times_origin * (value - target_starting_value)
 
         def convert_target_to_origin(value: float) -> float:
-            return value / target_is_x_times_origin
+            return value / target_is_x_times_origin + target_starting_value
 
         self.add_conversion(origin, target, convert_origin_to_target)
         self.add_conversion(target, origin, convert_target_to_origin)

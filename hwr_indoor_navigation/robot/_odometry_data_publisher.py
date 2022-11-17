@@ -114,7 +114,6 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
         ))
 
     def handle_change_odometry(self, new_odometry_data: OdometryData) -> None:
-        # print("test!!!!!!")
         # with self.publish_thread_lock:
         #     if self._current_odometry is None:
         #         self._current_odometry = new_odometry_data
@@ -174,7 +173,7 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
 
             self._yaw += angular_velocity * time_delta
 
-            print(angular_velocity, speed_in_meters_per_second, heading_in_radians, self._yaw)
+            # print(angular_velocity, speed_in_meters_per_second, heading_in_radians, self._yaw)
 
             # if speed_in_meters_per_second == 0:
             #     self._vx = 0.0
@@ -236,7 +235,5 @@ class OdometryDataPublisher(Node, interface.WithStartup, interface.WithShutdown)
             odom_data.twist.twist.angular.z = float(angular_velocity)
 
             self.odom_pub.publish(odom_data)
-
-            # print("aaaaaaaaaaaaaaaaaaaaaaaa")
 
             time.sleep(0.01)
