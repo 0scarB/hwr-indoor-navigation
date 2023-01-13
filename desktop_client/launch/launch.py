@@ -1,102 +1,92 @@
-import os
-import pathlib
-from dataclasses import dataclass
-
 import launch
-from ament_index_python.packages import get_package_share_directory 
-from launch.launch_description_sources import PythonLaunchDescriptionSource, AnyLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration
 import launch_ros
-from pathlib import Path
-
-
-@dataclass(frozen=True)
-class Paths:
-    project_root: Path
-    nav2_params_file: Path
-    default_rviz_config_file: Path
-    slam_toolbox_launch_file: Path
-    costmap_2d_launch_file: Path
-
+import os
 
 def generate_launch_description():
-    run_tests()
+    pkg_share = launch_ros.substitutions.FindPackageShare(package="desktop_client2").find("desktop_client2")
+    default_model_path = os.path.join(pkg_share, "src/description/pi_bot_description.urdf")
+    default_rviz_config_path = os.path.join(pkg_share, "config/urdf_config.rviz")
+    slam_toolbox_dir = launch_ros.substitutions.FindPackageShare(package="desktop_client2").find("slam_toolbox")
+    # slam_toolbox_localization_launch_file = os.path.join(slam_toolbox_dir, "launch", "localization_launch.py")
+    slam_toolbox_online_async_launch_file = os.path.join(slam_toolbox_dir, "launch", "online_async_launch.py")
+    params_file = os.path.join(pkg_share, "config/nav2_params.yaml")
 
-    paths = create_paths()
-
-    declare_params_file_cmd = launch.actions.DeclareLaunchArgument(
-        'params_file',
-        default_value=str(paths.nav2_params_file),
-        description='Full path to the ROS2 parameters file to use for all launched nodes'
+    robot_state_publisher_node = launch_ros.actions.Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        parameters=[{"robot_description": Command(["xacro ", LaunchConfiguration("model")])}]
     )
-    slam_node = launch.actions.IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(str(paths.slam_toolbox_launch_file))
+    joint_state_publisher_node = launch_ros.actions.Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher",
+    )
+    joint_state_publisher_gui_node = launch_ros.actions.Node(
+        package="joint_state_publisher_gui",
+        executable="joint_state_publisher_gui",
+        name="joint_state_publisher_gui",
+        condition=launch.conditions.IfCondition(LaunchConfiguration("gui"))
     )
     rviz_node = launch_ros.actions.Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', LaunchConfiguration('rvizconfig')],
+        package="rviz2",
+        executable="rviz2",
+        name="rviz",
+        output="screen",
+        arguments=["-d", LaunchConfiguration("rvizconfig")],
     )
+    # map_server_node = launch_ros.actions.Node(
+    #     package="nav2_map_server",
+    #     executable="map_saver_cli",
+    #     name="map_server",
+    #     # arguments=["-f", "/map"],
+    # )
     amcl_node = launch_ros.actions.Node(
         package='nav2_amcl',
         executable='amcl',
         name='amcl',
         output='screen',
-    )
-    costmap_2d_node = launch.actions.IncludeLaunchDescription(
-        AnyLaunchDescriptionSource("./costmap_2d.launch")
+        parameters=[params_file]
     )
 
     return launch.LaunchDescription([
-        launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=str(paths.default_rviz_config_file),
-                                            description='Absolute path to rviz config file'),
-        declare_params_file_cmd,
-        slam_node,
+        launch.actions.DeclareLaunchArgument(
+            name="gui",
+            default_value="True",
+            description="Flag to enable joint_state_publisher_gui"
+        ),
+        launch.actions.DeclareLaunchArgument(
+            name="model",
+            default_value=default_model_path,
+            description="Absolute path to robot urdf file"
+        ),
+        launch.actions.DeclareLaunchArgument(
+            name="rvizconfig",
+            default_value=default_rviz_config_path,
+            description="Absolute path to rviz config file"
+        ),
+        # launch.actions.IncludeLaunchDescription(
+        #     launch.launch_description_sources.PythonLaunchDescriptionSource([slam_toolbox_localization_launch_file])
+        # ),
+        launch.actions.IncludeLaunchDescription(
+            launch.launch_description_sources.PythonLaunchDescriptionSource(
+                [slam_toolbox_online_async_launch_file],
+            ),
+            launch_arguments={
+                "slam_params_file": os.path.join(os.path.join(pkg_share, "slam_toolbox/mapper_params_online_async.yaml"))
+            }.items()
+        ),
+        joint_state_publisher_node,
+        joint_state_publisher_gui_node,
+        robot_state_publisher_node,
         rviz_node,
+        # map_server_node,
         amcl_node,
-        costmap_2d_node
+        launch_ros.actions.Node(
+            package='nav2_lifecycle_manager',
+            executable='lifecycle_manager',
+            name='lifecycle_manager_localization',
+            output='screen',
+            parameters=[{'autostart': True}, {'node_names': ['amcl']}],
+        )
     ])
-
-
-def create_paths() -> Paths:
-    project_root = find_parent('hwr-indoor-navigation')
-    nav2_params_file = project_root / 'params' / 'nav2_params.yaml'
-    default_rviz_config_file = (Path(get_package_share_directory('desktop_client')) / 'urdf_config.rviz').resolve()
-    slam_toolbox_launch_dir = (Path(get_package_share_directory('slam_toolbox')) / 'launch').resolve()
-    slam_toolbox_launch_file = slam_toolbox_launch_dir / 'online_async_launch.py'
-
-    return Paths(
-        project_root=project_root,
-        nav2_params_file=nav2_params_file,
-        default_rviz_config_file=default_rviz_config_file,
-        slam_toolbox_launch_file=slam_toolbox_launch_file,
-    )
-
-
-def find_parent(parent_dir_name: str) -> Path:
-    path = pathlib.Path(__file__).resolve()
-    while True:
-        if path.is_dir() and path.name == parent_dir_name:
-            return path
-
-        path = path.parent
-
-
-def run_tests():
-    def test_paths():
-        paths = create_paths()
-
-        assert paths.nav2_params_file.exists()
-        assert paths.nav2_params_file.is_file()
-
-        assert paths.default_rviz_config_file.is_file()
-
-        assert paths.slam_toolbox_launch_file.is_file()
-
-    for test in [
-        test_paths,
-    ]:
-        test()
-
