@@ -1,10 +1,12 @@
 import event as global_event
 import robot
+import unit
 from . import _event as event
 from ._config import Config
 from ._keyboard_listener import KeyboardListener
 from ._forward_backward_keys_handler import ForwardBackwardKeysHandler
 from ._left_right_keys_handler import LeftRightKeysHandler
+from . import odom_sim
 
 
 class TerminalControls(global_event.Service):
@@ -13,9 +15,10 @@ class TerminalControls(global_event.Service):
 
     def __init__(self, config: Config) -> None:
         self._config = config
+        odom_sim.start_server()
 
     def use_event_broker(self, broker: global_event.Broker) -> None:
-        keyboard_listener = KeyboardListener()
+        # keyboard_listener = KeyboardListener()
 
         # create processors
         startup_request_event_processor = global_event.processor.StartupRequestProcessor()
@@ -24,23 +27,34 @@ class TerminalControls(global_event.Service):
         set_robot_speed_response_event_processor = event.processor.SetRobotSpeedResponseProcessor()
 
         # handle startup and shutdown
-        startup_request_event_processor.startup_obj_on_request(keyboard_listener)
-        shutdown_request_event_processor.shutdown_obj_on_request(keyboard_listener)
+        # startup_request_event_processor.startup_obj_on_request(keyboard_listener)
+        # shutdown_request_event_processor.shutdown_obj_on_request(keyboard_listener)
 
         # create publishers
         set_robot_heading_publisher = event.publisher.SetRobotHeadingPublisher()
         set_robot_speed_publisher = event.publisher.SetRobotSpeedPublisher()
 
+        def update_heading(heading: float) -> None:
+            set_robot_heading_publisher.set_heading(unit.UnitValue(heading, "radians"))
+            set_robot_heading_publisher.publish()
+
+        def update_speed(speed: float) -> None:
+            set_robot_speed_publisher.set_speed(unit.UnitValue(speed, "m/s"))
+            set_robot_speed_publisher.publish()
+
+        odom_sim.on_change_heading(update_heading)
+        odom_sim.on_change_speed(update_speed)
+
         # create services
-        forward_backward_keys_handler = ForwardBackwardKeysHandler(self._config, keyboard_listener)
-        left_right_keys_handler = LeftRightKeysHandler(self._config, keyboard_listener)
+        # forward_backward_keys_handler = ForwardBackwardKeysHandler(self._config, keyboard_listener)
+        # left_right_keys_handler = LeftRightKeysHandler(self._config, keyboard_listener)
 
         # configure services
-        forward_backward_keys_handler.use_set_robot_speed_publisher(set_robot_speed_publisher)
-        forward_backward_keys_handler.use_set_robot_speed_response_processor(set_robot_speed_response_event_processor)
-        left_right_keys_handler.use_set_robot_heading_publisher(set_robot_heading_publisher)
-        left_right_keys_handler.use_set_robot_speed_publisher(set_robot_speed_publisher)
-        left_right_keys_handler.use_set_robot_heading_response_processor(set_robot_heading_response_event_processor)
+        # forward_backward_keys_handler.use_set_robot_speed_publisher(set_robot_speed_publisher)
+        # forward_backward_keys_handler.use_set_robot_speed_response_processor(set_robot_speed_response_event_processor)
+        # left_right_keys_handler.use_set_robot_heading_publisher(set_robot_heading_publisher)
+        # left_right_keys_handler.use_set_robot_speed_publisher(set_robot_speed_publisher)
+        # left_right_keys_handler.use_set_robot_heading_response_processor(set_robot_heading_response_event_processor)
 
         # use event broker for publishing/processing
         broker.add_processor(
