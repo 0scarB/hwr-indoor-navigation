@@ -1,6 +1,7 @@
 import event as global_event
 import robot
 import unit
+import math
 from . import _event as event
 from ._config import Config
 from ._keyboard_listener import KeyboardListener
@@ -35,7 +36,7 @@ class TerminalControls(global_event.Service):
         set_robot_speed_publisher = event.publisher.SetRobotSpeedPublisher()
 
         def update_heading(heading: float) -> None:
-            set_robot_heading_publisher.set_heading(unit.UnitValue(heading, "radians"))
+            set_robot_heading_publisher.set_heading(unit.UnitValue(math.pi / 2 - heading, "radians"))
             set_robot_heading_publisher.publish()
 
         def update_speed(speed: float) -> None:

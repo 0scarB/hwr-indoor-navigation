@@ -27,18 +27,6 @@ class SteeringMotor(WithStartup, WithShutdown):
         self._add_unit_value_conversion()
         self.set_heading(self._heading)
 
-        # while True:
-        #     self.set_heading(UnitValue(45, "degrees"))
-        #     sleep(2)
-        #     self.set_heading(UnitValue(45 * 3/2, "degrees"))
-        #     sleep(2)
-        #     self.set_heading(UnitValue(90, "degrees"))
-        #     sleep(2)
-        #     self.set_heading(UnitValue(45 * 5/2, "degrees"))
-        #     sleep(2)
-        #     self.set_heading(UnitValue(135, "degrees"))
-        #     sleep(2)
-
     def set_heading(self, heading: UnitValue) -> None:
         if self._pwm is None:
             raise RuntimeError("Motor is has not started")
