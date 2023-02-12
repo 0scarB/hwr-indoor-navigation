@@ -24,8 +24,8 @@ class SteeringMotor(WithStartup, WithShutdown):
     def startup(self) -> None:
         self._pwm = Adafruit_PCA9685.PCA9685()
         self._pwm.set_pwm_freq(50)
-
         self._add_unit_value_conversion()
+        self.set_heading(self._heading)
 
         # while True:
         #     self.set_heading(UnitValue(45, "degrees"))
